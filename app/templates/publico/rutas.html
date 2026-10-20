@@ -1,0 +1,22 @@
+{% extends 'publico/base.html' %}
+
+{% block title %}Rutas - Stelman Buses{% endblock %}
+
+{% block content %}
+<section class="container">
+  <h1>Rutas</h1>
+
+  <ul class="ruta-list">
+    {% for r in rutas %}
+    <li>
+      <span class="route-badge" style="background: {{ r.color }};">{{ r.codigo_ruta[:1] | upper }}</span>
+      <a href="{{ url_for('publico.detalle_ruta', codigo=r.codigo_ruta) }}"><strong>Ruta {{ r.codigo_ruta }}</strong></a>
+      — {{ r.distancia }} km — Duración aprox: {{ r.duracion_estimada }} min
+      {% if r.origen %}<br><small>{{ r.origen }} → {{ r.destino }}</small>{% endif %}
+    </li>
+    {% else %}
+    <li>Aún no hay rutas registradas.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

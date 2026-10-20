@@ -1,0 +1,39 @@
+{% extends 'privado/base.html' %}
+
+{% block title %}Reportes | Stelman{% endblock %}
+
+{% block content %}
+
+<h1>📊 Reportes del Sistema</h1>
+
+<div class="section-intro">Desde aquí puedes generar la documentación técnica de la base de datos y otros reportes globales.</div>
+
+<hr style="margin: 20px 0;">
+
+<h2>📁 Exportar Base de Datos</h2>
+<p>Genera un archivo Excel con:</p>
+<ul>
+    <li>Estructura de todas las tablas </li>
+    <li>Primary Keys y Foreign Keys</li>
+    <li>Número de atributos por tabla</li>
+    <li>Datos insertados </li>
+    <li>Índice general de toda la base de datos</li>
+</ul>
+
+<div style="margin-top: 20px;">
+    <a href="/exportar_excel"
+       style="
+            display: inline-block;
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+       ">
+       📄 Exportar Estructura Completa (Excel)
+    </a>
+</div>
+
+{% endblock %}

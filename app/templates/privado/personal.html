@@ -1,0 +1,19 @@
+{% extends 'privado/base.html' %}
+
+{% block title %}Gestión de Personal{% endblock %}
+
+{% block content %}
+
+<h1>👥 Panel de Personal</h1>
+<div class="section-intro">Seleccione qué tipo de personal desea gestionar.</div>
+
+<hr>
+
+<section>
+    <a href="{{ url_for('personal.choferes') }}" class="btn btn-primary">
+        🚍 Gestionar Choferes
+    </a>
+</section>
+
+
+{% endblock %}

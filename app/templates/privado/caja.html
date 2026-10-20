@@ -1,0 +1,97 @@
+{% extends 'privado/base.html' %}
+
+{% block title %}Caja | Stelman{% endblock %}
+
+{% block content %}
+
+<h1>💰 Recaudación por Ruta</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<section style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+    <a href="{{ url_for('caja.panel', nuevo_caja='true') }}#modal-registro-caja" class="btn btn-primary">
+        Registrar Recaudación
+    </a>
+</section>
+
+<hr>
+
+<section>
+    <h2>Historial</h2>
+    <table border="1" width="100%" cellpadding="6">
+        <tr style="background:#f0f0f0;">
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Empleado</th>
+            <th>Bus</th>
+            <th>Acciones</th>
+        </tr>
+        {% for c in cajas %}
+        <tr>
+            <td>{{ c.fecha }}</td>
+            <td>S/. {{ "%.2f"|format(c.monto_recaudado) }}</td>
+            <td>{{ c.nombre }} {{ c.apellido }}</td>
+            <td>{{ c.placa }}</td>
+            <td>
+                <a href="{{ url_for('caja.editar', id_caja=c.id_caja) }}" class="btn-sm btn-info">Editar</a>
+                <a href="{{ url_for('caja.eliminar', id_caja=c.id_caja) }}" class="btn-sm btn-warning"
+                   onclick="return confirm('¿Seguro de eliminar esta recaudación?')">Eliminar</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align:center;">⚠ No hay recaudaciones registradas.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+{% if 'nuevo_caja' in request.args or editar_caja %}
+<div id="modal-registro-caja" style="border:2px solid green; padding:20px;">
+    <h2>{% if editar_caja %}Editar{% else %}Registrar{% endif %} Recaudación</h2>
+    <form method="post" action="{% if editar_caja %}{{ url_for('caja.actualizar') }}{% else %}{{ url_for('caja.registrar') }}{% endif %}">
+        {% if editar_caja %}
+        <input type="hidden" name="id_caja" value="{{ editar_caja.id_caja }}">
+        {% endif %}
+
+        <label>Fecha</label>
+        <input type="date" name="fecha" required max="{{ hoy }}" value="{{ editar_caja.fecha if editar_caja else '' }}">
+
+        <label>Monto</label>
+        <input type="number" step="0.01" name="monto" required value="{{ editar_caja.monto_recaudado if editar_caja else '' }}">
+
+        <label>Chofer</label>
+        <select name="id_empleado" required>
+            {% for e in empleados %}
+            <option value="{{ e.id_empleado }}" {% if editar_caja and editar_caja.id_empleado == e.id_empleado %}selected{% endif %}>
+                {{ e.nombre }} {{ e.apellido }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Bus</label>
+        <select name="id_bus" required>
+            {% for b in buses %}
+            <option value="{{ b.id_bus }}" {% if editar_caja and editar_caja.id_bus == b.id_bus %}selected{% endif %}>
+                {{ b.placa }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Observación</label>
+        <textarea name="observacion">{{ editar_caja.observacion if editar_caja else '' }}</textarea>
+
+        <br><br>
+        <button type="submit">{% if editar_caja %}Actualizar{% else %}Guardar{% endif %}</button>
+        <a href="{{ url_for('caja.panel') }}" class="btn-sm">Cancelar</a>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

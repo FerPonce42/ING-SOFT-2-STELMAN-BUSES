@@ -1,0 +1,110 @@
+<nav class="navbar">
+    <!-- LOGO A LA IZQUIERDA -->
+    <div class="logo">
+        <img src="{{ url_for('static', filename='imagenes/SA.png') }}"
+             alt="Stelman Buses" class="logo-img">
+        <span class="logo-text">San Stelman Urbano</span>
+    </div>
+
+    <!-- MENÚ HAMBURGUESA (móvil) -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- MENÚ PRINCIPAL -->
+    <ul class="nav-links" id="navLinks">
+        <li>
+            <a href="{{ url_for('publico.index') }}" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                </span>
+                <span>Inicio</span>
+            </a>
+        </li>
+
+        <!-- MENÚ RUTAS -->
+        <li class="dropdown">
+            <button class="nav-item dropbtn">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                    </svg>
+                </span>
+                <span>Rutas</span>
+                <span class="arrow">▾</span>
+            </button>
+            <div class="dropdown-content">
+                {% for r in rutas_publicas %}
+                <a href="{{ url_for('publico.detalle_ruta', codigo=r.codigo_ruta) }}" class="dropdown-item">
+                    <span class="route-badge" style="background: {{ r.color }};">{{ r.codigo_ruta[:1] | upper }}</span>
+                    <span class="route-info">
+                        <span class="route-name">Ruta {{ r.codigo_ruta }}</span>
+                        <span class="route-desc">{% if r.origen %}{{ r.origen }} → {{ r.destino }}{% else %}{{ r.duracion_estimada }} min{% endif %}</span>
+                    </span>
+                </a>
+                {% else %}
+                <span class="dropdown-item">Sin rutas registradas</span>
+                {% endfor %}
+            </div>
+        </li>
+
+        <li>
+            <a href="{{ url_for('publico.contacto') }}" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                </span>
+                <span>Contacto</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('auth.login') }}" class="nav-item nav-login">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                </span>
+                <span>Ingresar</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+// Script para menú móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    
+    menuToggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        const isClickInside = menuToggle.contains(event.target) || navLinks.contains(event.target);
+        if (!isClickInside && navLinks.classList.contains('active')) {
+            menuToggle.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+
+    // Cerrar menú al hacer clic en un enlace (móvil)
+    const navItems = navLinks.querySelectorAll('a:not(.dropbtn)');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+    });
+});
+</script>

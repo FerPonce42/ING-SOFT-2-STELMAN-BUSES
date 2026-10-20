@@ -1,0 +1,26 @@
+{% extends 'privado/base.html' %}
+
+{% block title %}Gestión de Incidencias | Stelman{% endblock %}
+
+{% block content %}
+
+<h1>📝 Gestión de Incidencias</h1>
+<div class="section-intro">Seleccione qué tipo de incidencia desea gestionar:</div>
+
+<hr>
+
+<section>
+    <a href="{{ url_for('incidencias.disciplinarias') }}" class="btn btn-primary">
+        ⚖️ Incidencias Disciplinarias
+    </a>
+</section>
+
+<br>
+
+<section>
+    <a href="{{ url_for('incidencias.operativas') }}" class="btn btn-secondary">
+        🛠️ Incidencias Operativas
+    </a>
+</section>
+
+{% endblock %}

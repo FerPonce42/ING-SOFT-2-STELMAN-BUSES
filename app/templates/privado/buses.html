@@ -1,0 +1,105 @@
+{% extends 'privado/base.html' %}
+
+{% block title %}Gestión de Buses{% endblock %}
+
+{% block content %}
+
+<h1>Gestión de Buses</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<section style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+    <a href="{{ url_for('buses.panel', nuevo='true') }}#modal-registro" class="btn">➕ Nuevo</a> 
+</section>
+
+{% if bus_a_editar %}
+    <div id="modal-edicion" style="border: 2px solid orange; padding: 20px; margin-top: 20px; margin-bottom: 20px;">
+        <h2>✏️ Editar Bus: {{ bus_a_editar.placa }}</h2>
+
+        <form method="post">
+            <input type="hidden" name="id_bus_editado" value="{{ bus_a_editar.id_bus }}">
+
+            <label>Placa</label>
+            <input type="text" name="placa" value="{{ bus_a_editar.placa }}" required>
+
+            <label>Modelo</label>
+            <select name="id_modelo_bus" required>
+                {% for m in modelos %}
+                    <option value="{{ m.id }}" {% if m.id == bus_a_editar.id_modelo_bus %}selected{% endif %}>
+                        {{ m.marca_nombre }} - {{ m.modelo_nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Año de fabricación</label>
+            <input type="number" name="anio" min="1950" max="{{ anio_maximo }}" value="{{ bus_a_editar.año_fabricacion }}" required>
+            
+            <button type="submit">Guardar Cambios</button>
+            <a href="{{ url_for('buses.panel') }}" class="btn-sm">Cancelar</a> 
+        </form>
+    </div>
+{% endif %}
+<section>
+    <table border="1" width="100%" cellpadding="6">
+        <tr>
+            <th>Placa</th>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Año</th>
+            <th>Último mantenimiento</th>
+            <th>Acciones</th> 
+        </tr>
+
+        {% for b in buses %}
+        <tr>
+            <td>{{ b.placa }}</td>
+            <td>{{ b.modelo }}</td>
+            <td>{{ b.marca }}</td>
+            <td>{{ b.año }}</td>
+            <td>{{ b.revision.strftime('%Y-%m-%d') if b.revision else 'N/A' }}</td>
+            <td>
+                <a href="{{ url_for('buses.panel', id_editar=b.id_bus) }}#modal-edicion" class="btn-sm btn-info"> Editar</a>
+                
+                <a href="{{ url_for('buses.desasignar', id_bus=b.id_bus) }}" class="btn-sm btn-warning" 
+                   onclick="return confirm('¿Seguro que deseas desasignar el bus {{ b.placa }} de tu ruta?')"> Desasignar</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" align="center">No hay buses registrados en tu ruta</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+{% if 'nuevo' in request.args %}
+<div id="modal-registro" style="border: 1px solid #ccc; padding: 20px; margin-top: 20px; display: block;">
+{% else %}
+<div id="modal-registro" style="border: 1px solid #ccc; padding: 20px; margin-top: 20px; display: none;">
+{% endif %}
+    <h2>Registrar Nuevo Bus</h2>
+
+    <form method="post" name="form_nuevo_bus">
+        <label>Placa</label>
+        <input type="text" name="placa" required>
+
+        <label>Modelo</label>
+        <select name="id_modelo_bus" required>
+            {% for m in modelos %}
+                <option value="{{ m.id }}">{{ m.marca_nombre }} - {{ m.modelo_nombre }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Año de fabricación</label>
+        <input type="number" name="anio" min="1950" max="{{ anio_maximo }}" required>
+        <button type="submit">Guardar</button>
+        <a href="{{ url_for('buses.panel') }}" class="btn-sm">Cancelar</a> 
+    </form>
+</div>
+{% endblock %}

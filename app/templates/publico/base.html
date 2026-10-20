@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Stelman Buses{% endblock %}</title>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/supervisor.css') }}">
+
+  <!-- CSS específico de cada página -->
+  {% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  {% endblock %}
+</head>
+
+<body>
+
+  {% include 'publico/navbar.html' %}
+
+  <main id="main-content">
+      <div class="page-container">
+          {% block content %}{% endblock %}
+      </div>
+  </main>
+
+  {% include 'publico/footer.html' %}
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-bd_stelman_buses}
+      MARIADB_USER: ${DB_USER:-stelman}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-stelman}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Solo corre la PRIMERA vez (volumen vacío): 01 = esquema+datos, 02 = seed de desarrollo.
+      - ./db:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3307:3306"   # para DBeaver/Workbench; 3307 evita chocar con un MySQL local
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-bd_stelman_buses}
+      DB_USER: ${DB_USER:-stelman}
+      DB_PASSWORD: ${DB_PASSWORD:-stelman}
+      SECRET_KEY: ${SECRET_KEY:-dev-only-cambiar-en-produccion}
+      FLASK_DEBUG: "1"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/srv/app   # edita y recarga sin reconstruir la imagen
+
+volumes:
+  db_data:
