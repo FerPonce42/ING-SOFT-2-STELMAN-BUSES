@@ -1,3 +1,4 @@
+import unittest
 from decimal import Decimal
 from unittest.mock import Mock
 
@@ -48,3 +49,35 @@ def test_detalle_publico_convierte_coordenadas_a_float(repo):
 def test_detalle_publico_de_ruta_inexistente_devuelve_none(repo):
     repo.obtener_por_codigo.return_value = None
     assert RutaService(repo).detalle_publico("X") is None
+
+
+class RutaServiceConMocksTest(unittest.TestCase):
+    """Issue #3 - casos que faltaban: exigir_ruta_activa con ruta y listar_publicas."""
+
+    def setUp(self):
+        self.repo = Mock()
+        self.servicio = RutaService(self.repo)
+
+    def tearDown(self):
+        self.repo = None
+        self.servicio = None
+
+    def test_ruta_activa_devuelve_lo_que_responde_el_repositorio(self):
+        self.repo.ruta_activa_de_supervisor.return_value = 3
+        self.assertEqual(self.servicio.ruta_activa(10), 3)
+        self.repo.ruta_activa_de_supervisor.assert_called_once_with(10)
+
+    def test_exigir_ruta_activa_devuelve_el_id_cuando_hay_ruta(self):
+        self.repo.ruta_activa_de_supervisor.return_value = 3
+        self.assertEqual(self.servicio.exigir_ruta_activa(10), 3)
+        self.repo.ruta_activa_de_supervisor.assert_called_once_with(10)
+
+    def test_listar_publicas_devuelve_las_rutas_del_repositorio(self):
+        rutas = [{"codigo_ruta": "EX-101"}, {"codigo_ruta": "EX-102"}]
+        self.repo.listar_publicas.return_value = rutas
+        self.assertEqual(self.servicio.listar_publicas(), rutas)
+        self.repo.listar_publicas.assert_called_once_with()
+
+    def test_listar_publicas_sin_rutas_devuelve_lista_vacia(self):
+        self.repo.listar_publicas.return_value = []
+        self.assertEqual(self.servicio.listar_publicas(), [])
