@@ -1,0 +1,8 @@
+[run]
+source = app
+omit =
+    app/static/*
+    app/templates/*
+
+[report]
+show_missing = True

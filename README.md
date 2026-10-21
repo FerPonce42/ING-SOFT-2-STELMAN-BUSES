@@ -49,6 +49,7 @@ Cada fila es independiente: dos personas pueden trabajar en filas distintas sin 
 ```bash
 pip install -r requirements-dev.txt
 pytest                                  # unitarias (no necesitan BD)
+coverage run -m pytest && coverage report   # + cobertura (coverage html -> htmlcov/index.html)
 RUN_INTEGRATION=1 pytest                # + integración (BD corriendo: docker compose up db)
 ```
 
@@ -64,3 +65,9 @@ Para integración fuera de Docker: `DB_HOST=127.0.0.1 DB_PORT=3307 RUN_INTEGRATI
 - Las eliminaciones siguen siendo enlaces GET (`/eliminar_...`); lo correcto es POST + token CSRF.
 - Registrar mantenimientos de buses (tabla `mantenimiento`) aún no tiene pantalla; hoy solo se muestra el último.
 - No hay gestión de supervisores/cuentas ni asignación de supervisor a ruta desde la app (se hace en BD).
+
+## Lab 05 (equipo)
+
+Guía completa del laboratorio (reparto por persona, flujo de Git, cómo escribir pruebas, checklist):
+[`docs/GUIA_EQUIPO.md`](docs/GUIA_EQUIPO.md). Formato de la tabla de casos: [`docs/PLANTILLA_CASOS_DE_PRUEBA.md`](docs/PLANTILLA_CASOS_DE_PRUEBA.md).
+Capas de prueba: `tests/domain/`, `tests/repositories/`, `tests/services/`. Reportes finales en `reports/`.
