@@ -77,3 +77,78 @@ def test_panel_conserva_el_bus_desasignado_en_el_select(servicio, repo):
     datos = servicio.panel_operativas(1, id_editar=5)
     assert {"id_bus": 8, "placa": "Z"} in datos["buses"]
     assert datos["editar_incidencia"]["fecha"] == "2026-01-02"  # el <input type=date> no acepta datetime
+
+
+def test_actualizar_disciplinaria_correctamente(servicio, repo):
+    repo.obtener_disciplinaria.return_value = {"id_incidencia": 9}
+
+    servicio.actualizar_disciplinaria(
+        1, {**DISC, "id_incidencia": "9"}
+    )
+
+    repo.actualizar_disciplinaria.assert_called_once()
+    args = repo.actualizar_disciplinaria.call_args.args
+    assert args[0] == 9
+    assert args[2] == "Retraso"
+    assert args[5] == 2
+    assert args[6] == "Amonestación"
+    repo.commit.assert_called_once()
+
+
+def test_eliminar_disciplinaria_correctamente(servicio, repo):
+    repo.obtener_disciplinaria.return_value = {"id_incidencia": 9}
+
+    servicio.eliminar_disciplinaria(1, 9)
+
+    repo.eliminar_disciplinaria.assert_called_once_with(9)
+    repo.commit.assert_called_once()
+
+
+def test_actualizar_operativa_correctamente(servicio, repo):
+    repo.obtener_operativa.return_value = {"id_incidencia": 5}
+
+    servicio.actualizar_operativa(
+        1, {**OPER, "id_incidencia": "5"}
+    )
+
+    repo.actualizar_operativa.assert_called_once()
+    args = repo.actualizar_operativa.call_args.args
+    assert args[0] == 5
+    assert args[2] == "Choque"
+    assert args[5] == "Leve"
+    assert str(args[6]) == "0"
+    assert args[7] == 1
+    repo.commit.assert_called_once()
+
+
+def test_eliminar_operativa_correctamente(servicio, repo):
+    repo.obtener_operativa.return_value = {"id_incidencia": 5}
+
+    servicio.eliminar_operativa(1, 5)
+
+    repo.eliminar_operativa.assert_called_once_with(5)
+    repo.commit.assert_called_once()
+
+
+def test_rollback_si_falla_la_actualizacion(servicio, repo):
+    repo.obtener_disciplinaria.return_value = {"id_incidencia": 9}
+    repo.actualizar_disciplinaria.side_effect = RuntimeError("fallo")
+
+    with pytest.raises(RuntimeError, match="fallo"):
+        servicio.actualizar_disciplinaria(
+            1, {**DISC, "id_incidencia": "9"}
+        )
+
+    repo.rollback.assert_called_once()
+    repo.commit.assert_not_called()
+
+
+def test_rollback_si_falla_la_eliminacion(servicio, repo):
+    repo.obtener_operativa.return_value = {"id_incidencia": 5}
+    repo.eliminar_operativa.side_effect = RuntimeError("fallo")
+
+    with pytest.raises(RuntimeError, match="fallo"):
+        servicio.eliminar_operativa(1, 5)
+
+    repo.rollback.assert_called_once()
+    repo.commit.assert_not_called()
