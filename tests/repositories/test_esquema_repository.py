@@ -131,6 +131,23 @@ class EsquemaRepositoryTest(unittest.TestCase):
             self.repo.filas("bus", limite="1; DROP TABLE bus")
         self.cur.execute.assert_not_called()
 
+    # parametros de los metodos que no reciben ninguno
+    def test_metodos_sin_parametros_ejecutan_el_sql_con_tupla_vacia(self):
+        self.cur.fetchone.return_value = {"nombre": "stelman_db", "Create Table": "CREATE TABLE", "c": 0}
+        self.cur.fetchall.return_value = []
+        llamadas = {
+            "nombre_bd": lambda: self.repo.nombre_bd(),
+            "tablas": lambda: self.repo.tablas(),
+            "ddl": lambda: self.repo.ddl("bus"),
+            "contar": lambda: self.repo.contar("bus"),
+            "filas": lambda: self.repo.filas("bus"),
+        }
+        for nombre, llamar in llamadas.items():
+            with self.subTest(metodo=nombre):
+                self.cur.execute.reset_mock()
+                llamar()
+                self.assertEqual(self._params(), ())
+
 
 if __name__ == "__main__":
     unittest.main()
