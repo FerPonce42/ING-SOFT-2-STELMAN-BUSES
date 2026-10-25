@@ -1,0 +1,37 @@
+Name                                        Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------------
+app/__init__.py                                22     17    23%   10-30
+app/config.py                                   9      0   100%
+app/container.py                               30     30     0%   2-48
+app/db.py                                      14      8    43%   8-20, 24-26, 30
+app/errors.py                                  13      0   100%
+app/repositories/__init__.py                    0      0   100%
+app/repositories/base.py                       24      0   100%
+app/repositories/bus_repository.py             24      0   100%
+app/repositories/caja_repository.py            12      0   100%
+app/repositories/chofer_repository.py          20      0   100%
+app/repositories/cuenta_repository.py           4      0   100%
+app/repositories/esquema_repository.py         18      0   100%
+app/repositories/incidencia_repository.py      38      2    95%   23, 29
+app/repositories/ruta_repository.py            24      0   100%
+app/services/__init__.py                        0      0   100%
+app/services/auth_service.py                   10      0   100%
+app/services/bus_service.py                    64      0   100%
+app/services/caja_service.py                   48      0   100%
+app/services/chofer_service.py                 62      3    95%   17, 80, 87
+app/services/incidencia_service.py             88      6    93%   41, 56-59, 110, 119
+app/services/reporte_service.py               105      0   100%
+app/services/ruta_service.py                   29      0   100%
+app/services/validaciones.py                   42      0   100%
+app/web/__init__.py                             0      0   100%
+app/web/auth.py                                21     21     0%   1-29
+app/web/buses.py                               40     40     0%   1-51
+app/web/caja.py                                37     37     0%   1-54
+app/web/incidencias.py                         59     59     0%   1-93
+app/web/panel.py                                9      9     0%   1-13
+app/web/personal.py                            37     37     0%   1-56
+app/web/publico.py                             20     20     0%   1-31
+app/web/reportes.py                            13     13     0%   1-19
+app/web/seguridad.py                           11     11     0%   1-17
+-------------------------------------------------------------------------
+TOTAL                                         947    313    67%
