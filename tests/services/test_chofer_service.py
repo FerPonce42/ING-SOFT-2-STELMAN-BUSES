@@ -69,3 +69,44 @@ def test_actualizar_llama_al_repositorio_con_el_id_correcto(servicio, choferes):
     servicio.actualizar(1, "2", FORM)
     assert choferes.actualizar.call_args.args[0] == 2
     choferes.commit.assert_called_once()
+
+
+import unittest
+import datetime
+
+class PanelChoferServiceTest(unittest.TestCase):
+    def setUp(self):
+        # Preparamos los mocks para reemplazar los repositorios
+        self.choferes_mock = Mock()
+        self.rutas_mock = Mock()
+        self.servicio = ChoferService(self.choferes_mock, self.rutas_mock)
+
+    def tearDown(self):
+        self.choferes_mock = self.rutas_mock = self.servicio = None
+
+    def test_panel_sin_ruta_activa_devuelve_datos_vacios(self):
+        # Simular que el supervisor no tiene ruta activa
+        self.rutas_mock.ruta_activa.return_value = None
+        
+        # Ejecutar
+        resultado = self.servicio.panel(1)
+        
+        # Verificar
+        self.assertEqual(resultado["choferes"], [])
+        self.assertIsNone(resultado["editar_personal"])
+
+    def test_panel_con_id_editar_formatea_fechas_iso(self):
+        # Simular que tiene ruta y que se pidió editar un chofer
+        self.rutas_mock.ruta_activa.return_value = 5
+        self.choferes_mock.obtener.return_value = {
+            "fecha_nacimiento": datetime.date(1990, 5, 1),
+            "fecha_primera_licencia": datetime.date(2012, 3, 4)
+        }
+        
+        # Ejecutar
+        resultado = self.servicio.panel(1, id_editar=2)
+        
+        # Verificar que el servicio llamó al mock y convirtió las fechas a texto ISO
+        self.choferes_mock.obtener.assert_called_once_with(2)
+        self.assertEqual(resultado["editar_personal"]["fecha_nacimiento"], "1990-05-01")
+        self.assertEqual(resultado["editar_personal"]["fecha_primera_licencia"], "2012-03-04")
