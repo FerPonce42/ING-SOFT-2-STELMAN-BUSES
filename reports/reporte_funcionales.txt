@@ -1,0 +1,52 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\ferpo\AppData\Local\Python\pythoncore-3.14-64\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\ferpo\OneDrive\Documentos\ING-SOFT-2-STELMAN-BUSES
+configfile: pytest.ini
+collecting ... collected 42 items
+
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp01_credenciales_validas PASSED [  2%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp02_clave_incorrecta PASSED [  4%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp03_usuario_inexistente PASSED [  7%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp04_usuario_vacio PASSED [  9%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp05_clave_vacia PASSED [ 11%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp06_ambos_vacios PASSED [ 14%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp07_texto_muy_largo PASSED [ 16%]
+tests/functional/test_acceso_rutas.py::PruebasIniciarSesion::test_cp08_espacios_alrededor_del_usuario PASSED [ 19%]
+tests/functional/test_buses.py::TestModuloBuses::test_cp01_verificar_pantalla_buses PASSED [ 21%]
+tests/functional/test_buses.py::TestModuloBuses::test_cp02_abrir_formulario_nuevo PASSED [ 23%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp01_datos_validos PASSED [ 26%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp02_monto_limite_inferior_valido PASSED [ 28%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp03_monto_cero PASSED [ 30%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp04_monto_negativo PASSED [ 33%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp05_monto_vacio PASSED [ 35%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp06_fecha_futura PASSED [ 38%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp07_fecha_de_hoy PASSED [ 40%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp08_fecha_minima_permitida PASSED [ 42%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp09_fecha_anterior_al_minimo PASSED [ 45%]
+tests/functional/test_caja.py::RegistrarRecaudacionTest::test_cp10_observacion_vacia PASSED [ 47%]
+tests/functional/test_choferes.py::ChoferesFuncionalTest::test_cp01_listar_choferes_clase_valida PASSED [ 50%]
+tests/functional/test_choferes.py::ChoferesFuncionalTest::test_cp02_listar_choferes_valor_limite_cero PASSED [ 52%]
+tests/functional/test_choferes.py::ChoferesFuncionalTest::test_cp03_acceso_sin_login_redirige_a_login PASSED [ 54%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp01_registrar_incidencia_disciplinaria_valida PASSED [ 57%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp02_descripcion_disciplinaria_vacia PASSED [ 59%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp03_fecha_disciplinaria_futura PASSED [ 61%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp04_descripcion_disciplinaria_supera_500_caracteres PASSED [ 64%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp05_sancion_disciplinaria_vacia PASSED [ 66%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp06_registrar_incidencia_operativa_valida PASSED [ 69%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp07_costo_operativo_vacio_se_acepta_como_cero PASSED [ 71%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp08_gravedad_operativa_limite_inferior_leve PASSED [ 73%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp09_gravedad_operativa_limite_superior_grave PASSED [ 76%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp10_descripcion_operativa_vacia PASSED [ 78%]
+tests/functional/test_incidencias.py::TestRegistrarIncidencia::test_cp11_costo_operativo_negativo PASSED [ 80%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp01_abrir_reportes_desde_el_menu PASSED [ 83%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp02_exportar_descarga_un_xlsx_con_nombre_valido PASSED [ 85%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp03_el_excel_trae_las_hojas_fijas PASSED [ 88%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp04_limite_inferior_archivo_no_vacio_y_con_hojas_de_tablas PASSED [ 90%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp05_exportar_dos_veces_seguidas_sin_error PASSED [ 92%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp06_sin_sesion_reportes_redirige_al_login PASSED [ 95%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp07_sin_sesion_exportar_redirige_al_login_y_no_descarga PASSED [ 97%]
+tests/functional/test_reportes.py::PruebasGenerarDocumentacionExcel::test_cp08_sesion_cerrada_exportar_ya_no_descarga PASSED [100%]
+
+- generated xml file: C:\Users\ferpo\OneDrive\Documentos\ING-SOFT-2-STELMAN-BUSES\reports\reporte_funcionales.xml -
+======================= 42 passed in 351.48s (0:05:51) ========================
