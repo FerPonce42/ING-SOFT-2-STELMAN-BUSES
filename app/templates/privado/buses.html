@@ -25,11 +25,11 @@
         <form method="post">
             <input type="hidden" name="id_bus_editado" value="{{ bus_a_editar.id_bus }}">
 
-            <label>Placa</label>
-            <input type="text" name="placa" value="{{ bus_a_editar.placa }}" required>
+            <label for="editar_placa">Placa</label>
+            <input id="editar_placa" type="text" name="placa" value="{{ bus_a_editar.placa }}" required>
 
-            <label>Modelo</label>
-            <select name="id_modelo_bus" required>
+            <label for="editar_modelo">Modelo</label>
+            <select id="editar_modelo" name="id_modelo_bus" required>
                 {% for m in modelos %}
                     <option value="{{ m.id }}" {% if m.id == bus_a_editar.id_modelo_bus %}selected{% endif %}>
                         {{ m.marca_nombre }} - {{ m.modelo_nombre }}
@@ -37,8 +37,8 @@
                 {% endfor %}
             </select>
 
-            <label>Año de fabricación</label>
-            <input type="number" name="anio" min="1950" max="{{ anio_maximo }}" value="{{ bus_a_editar.año_fabricacion }}" required>
+            <label for="editar_anio">Año de fabricación</label>
+            <input id="editar_anio" type="number" name="anio" min="1950" max="{{ anio_maximo }}" value="{{ bus_a_editar.año_fabricacion }}" required>
             
             <button type="submit">Guardar Cambios</button>
             <a href="{{ url_for('buses.panel') }}" class="btn-sm">Cancelar</a> 
@@ -47,13 +47,14 @@
 {% endif %}
 <section>
     <table border="1" width="100%" cellpadding="6">
+        <caption>Listado de buses asignados a la ruta</caption>
         <tr>
-            <th>Placa</th>
-            <th>Modelo</th>
-            <th>Marca</th>
-            <th>Año</th>
-            <th>Último mantenimiento</th>
-            <th>Acciones</th> 
+            <th scope="col">Placa</th>
+            <th scope="col">Modelo</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Año</th>
+            <th scope="col">Último mantenimiento</th>
+            <th scope="col">Acciones</th> 
         </tr>
 
         {% for b in buses %}
@@ -86,18 +87,18 @@
     <h2>Registrar Nuevo Bus</h2>
 
     <form method="post" name="form_nuevo_bus">
-        <label>Placa</label>
-        <input type="text" name="placa" required>
+        <label for="nuevo_placa">Placa</label>
+        <input id="nuevo_placa" type="text" name="placa" required>
 
-        <label>Modelo</label>
-        <select name="id_modelo_bus" required>
+        <label for="nuevo_modelo">Modelo</label>
+        <select id="nuevo_modelo" name="id_modelo_bus" required>
             {% for m in modelos %}
                 <option value="{{ m.id }}">{{ m.marca_nombre }} - {{ m.modelo_nombre }}</option>
             {% endfor %}
         </select>
 
-        <label>Año de fabricación</label>
-        <input type="number" name="anio" min="1950" max="{{ anio_maximo }}" required>
+        <label for="nuevo_anio">Año de fabricación</label>
+        <input id="nuevo_anio" type="number" name="anio" min="1950" max="{{ anio_maximo }}" required>
         <button type="submit">Guardar</button>
         <a href="{{ url_for('buses.panel') }}" class="btn-sm">Cancelar</a> 
     </form>

@@ -37,7 +37,7 @@ def panel():
     return render_template("privado/buses.html", **datos)
 
 
-@bp.route("/panel/buses/eliminar/<int:id_bus>")
+@bp.route("/panel/buses/eliminar/<int:id_bus>", methods=["GET"])
 @login_required
 def desasignar(id_bus):
     try:
