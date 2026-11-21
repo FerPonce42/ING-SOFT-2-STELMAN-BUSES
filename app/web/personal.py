@@ -18,13 +18,13 @@ def _ejecutar(accion, mensaje_ok, mensaje_error):
         flash(f"❌ {mensaje_error}", "danger")
 
 
-@bp.route("/panel/personal")
+@bp.route("/panel/personal", methods=["GET"])
 @login_required
 def inicio():
     return render_template("privado/personal.html")
 
 
-@bp.route("/panel/personal/choferes")
+@bp.route("/panel/personal/choferes", methods=["GET"])
 @login_required
 def choferes():
     servicio = container.chofer_service()
