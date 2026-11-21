@@ -3,6 +3,7 @@ from app.services import validaciones as v
 
 ESTADOS = ("Pendiente", "En revision", "Resuelta", "Cancelada")
 GRAVEDADES = ("Leve", "Moderada", "Grave")
+MSG_INCIDENCIA_NO_ENCONTRADA = "La incidencia no existe o no pertenece a tu ruta."
 
 
 class IncidenciaService:
@@ -70,7 +71,7 @@ class IncidenciaService:
         id_ruta = self.rutas.exigir_ruta_activa(id_supervisor)
         id_incidencia = v.entero(form.get("id_incidencia"), "La incidencia")
         if not self.incidencias.obtener_disciplinaria(id_incidencia, id_ruta):
-            raise ReglaNegocioError("La incidencia no existe o no pertenece a tu ruta.")
+            raise ReglaNegocioError(MSG_INCIDENCIA_NO_ENCONTRADA)
         b = self._base(form)
         id_tipo = v.entero(form.get("id_tipo_disciplinaria"), "El tipo de falta")
         sancion = v.texto_requerido(form.get("sancion"), "La sanción", 255)
@@ -80,7 +81,7 @@ class IncidenciaService:
     def eliminar_disciplinaria(self, id_supervisor, id_incidencia):
         id_ruta = self.rutas.exigir_ruta_activa(id_supervisor)
         if not self.incidencias.obtener_disciplinaria(id_incidencia, id_ruta):
-            raise ReglaNegocioError("La incidencia no existe o no pertenece a tu ruta.")
+            raise ReglaNegocioError(MSG_INCIDENCIA_NO_ENCONTRADA)
         self._transaccion(lambda: self.incidencias.eliminar_disciplinaria(id_incidencia))
 
     # ---------- operativas ----------
@@ -107,7 +108,7 @@ class IncidenciaService:
         id_ruta = self.rutas.exigir_ruta_activa(id_supervisor)
         id_incidencia = v.entero(form.get("id_incidencia"), "La incidencia")
         if not self.incidencias.obtener_operativa(id_incidencia, id_ruta):
-            raise ReglaNegocioError("La incidencia no existe o no pertenece a tu ruta.")
+            raise ReglaNegocioError(MSG_INCIDENCIA_NO_ENCONTRADA)
         b = self._base(form)
         gravedad, costo, seguro = self._datos_operativa(form)
         self._transaccion(lambda: self.incidencias.actualizar_operativa(
@@ -116,5 +117,5 @@ class IncidenciaService:
     def eliminar_operativa(self, id_supervisor, id_incidencia):
         id_ruta = self.rutas.exigir_ruta_activa(id_supervisor)
         if not self.incidencias.obtener_operativa(id_incidencia, id_ruta):
-            raise ReglaNegocioError("La incidencia no existe o no pertenece a tu ruta.")
+            raise ReglaNegocioError(MSG_INCIDENCIA_NO_ENCONTRADA)
         self._transaccion(lambda: self.incidencias.eliminar_operativa(id_incidencia))
