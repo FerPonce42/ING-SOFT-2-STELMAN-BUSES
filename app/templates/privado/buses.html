@@ -23,6 +23,7 @@
         <h2>✏️ Editar Bus: {{ bus_a_editar.placa }}</h2>
 
         <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="id_bus_editado" value="{{ bus_a_editar.id_bus }}">
 
             <label for="editar_placa">Placa</label>
@@ -87,6 +88,7 @@
     <h2>Registrar Nuevo Bus</h2>
 
     <form method="post" name="form_nuevo_bus">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="nuevo_placa">Placa</label>
         <input id="nuevo_placa" type="text" name="placa" required>
 

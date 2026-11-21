@@ -68,6 +68,7 @@
 <div id="modal-nueva" style="border:2px solid green; padding:20px;">
     <h2> Registrar Nueva Incidencia Operativa</h2>
     <form method="post" action="{{ url_for('incidencias.registrar_operativa') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <label for="nueva-id_bus">Bus</label>
         <select id="nueva-id_bus" name="id_bus" required>
@@ -115,6 +116,7 @@
 <div id="modal-editar" style="border:2px solid orange; padding:20px;">
     <h2> Editar Incidencia Operativa</h2>
     <form method="post" action="{{ url_for('incidencias.actualizar_operativa') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="id_incidencia" value="{{ editar_incidencia.id_incidencia }}">
 
         <label for="editar-id_bus">Bus</label>

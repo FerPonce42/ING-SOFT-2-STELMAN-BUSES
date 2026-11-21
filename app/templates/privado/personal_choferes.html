@@ -69,6 +69,7 @@
 <div id="modal-registro-chofer" style="border:2px solid green;padding:20px;">
     <h2> Registrar Nuevo Chofer</h2>
     <form method="post" action="{{ url_for('personal.registrar_chofer') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <h3>Datos Personales</h3>
         <label for="reg_nombre">Nombre</label><input id="reg_nombre" type="text" name="nombre" required>
@@ -109,6 +110,7 @@
     <h2> Editar Chofer</h2>
 
     <form method="post" action="{{ url_for('personal.actualizar_chofer') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="id_empleado" value="{{ editar_personal.id_empleado }}">
 
         <h3>Datos Personales</h3>

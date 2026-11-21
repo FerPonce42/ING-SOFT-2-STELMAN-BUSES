@@ -1,15 +1,19 @@
 from datetime import datetime
 
 from flask import Flask, request
+from flask_wtf.csrf import CSRFProtect
 
 from app import db
 from app.config import Config
+
+csrf = CSRFProtect()
 
 
 def create_app(config_object=Config):
     app = Flask(__name__)
     app.config.from_object(config_object)
     db.init_app(app)
+    csrf.init_app(app)
 
     from app.web import auth, buses, caja, incidencias, panel, personal, publico, reportes
 

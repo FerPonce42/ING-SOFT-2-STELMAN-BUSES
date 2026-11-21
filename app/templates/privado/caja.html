@@ -73,6 +73,7 @@
 
     <form method="post"
           action="{% if editar_caja %}{{ url_for('caja.actualizar') }}{% else %}{{ url_for('caja.registrar') }}{% endif %}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         {% if editar_caja %}
         <input type="hidden"
