@@ -2,10 +2,10 @@ services:
   db:
     image: mariadb:10.11
     environment:
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Falta DB_ROOT_PASSWORD en .env}
       MARIADB_DATABASE: ${DB_NAME:-bd_stelman_buses}
       MARIADB_USER: ${DB_USER:-stelman}
-      MARIADB_PASSWORD: ${DB_PASSWORD:-stelman}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
     volumes:
       - db_data:/var/lib/mysql
       # Solo corre la PRIMERA vez (volumen vacío): 01 = esquema+datos, 02 = seed de desarrollo.
@@ -28,8 +28,8 @@ services:
       DB_PORT: 3306
       DB_NAME: ${DB_NAME:-bd_stelman_buses}
       DB_USER: ${DB_USER:-stelman}
-      DB_PASSWORD: ${DB_PASSWORD:-stelman}
-      SECRET_KEY: ${SECRET_KEY:-dev-only-cambiar-en-produccion}
+      DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      SECRET_KEY: ${SECRET_KEY:?Falta SECRET_KEY en .env}
       FLASK_DEBUG: "1"
     ports:
       - "5000:5000"
