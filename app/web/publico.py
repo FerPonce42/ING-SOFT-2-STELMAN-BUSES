@@ -5,17 +5,17 @@ from app import container
 bp = Blueprint("publico", __name__)
 
 
-@bp.route("/")
+@bp.route("/", methods=["GET"])
 def index():
     return render_template("publico/index.html")
 
 
-@bp.route("/rutas")
+@bp.route("/rutas", methods=["GET"])
 def rutas():
     return render_template("publico/rutas.html", rutas=container.ruta_service().listar_publicas())
 
 
-@bp.route("/ruta/<string:codigo>")
+@bp.route("/ruta/<string:codigo>", methods=["GET"])
 def detalle_ruta(codigo):
     detalle = container.ruta_service().detalle_publico(codigo)
     if not detalle:

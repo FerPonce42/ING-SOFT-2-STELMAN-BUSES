@@ -6,13 +6,13 @@ from app.web.seguridad import login_required
 bp = Blueprint("reportes", __name__)
 
 
-@bp.route("/panel/reportes")
+@bp.route("/panel/reportes", methods=["GET"])
 @login_required
 def inicio():
     return render_template("privado/reportes.html")
 
 
-@bp.route("/exportar_excel")
+@bp.route("/exportar_excel", methods=["GET"])
 @login_required  # antes era público: exponía toda la BD a cualquiera
 def exportar():
     servicio = container.reporte_service()
