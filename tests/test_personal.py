@@ -12,6 +12,7 @@ from app.errors import ReglaNegocioError
 
 class ConfigPruebas(Config):
     TESTING = True
+    WTF_CSRF_ENABLED = False
     SECRET_KEY = "clave-pruebas-personal"
 
 

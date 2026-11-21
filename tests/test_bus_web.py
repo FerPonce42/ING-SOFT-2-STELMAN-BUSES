@@ -12,6 +12,7 @@ from app.web import buses
 def client():
     app = create_app()
     app.config["TESTING"] = True
+    app.config["WTF_CSRF_ENABLED"] = False
     with app.test_client() as test_client:
         with test_client.session_transaction() as sess:
             sess["usuario"] = "supervisor_test"
@@ -83,6 +84,7 @@ def test_ruta_panel_sin_sesion_redirige_al_login():
     # Arrange
     app = create_app()
     app.config["TESTING"] = True
+    app.config["WTF_CSRF_ENABLED"] = False
 
     # Act
     with app.test_client() as anon_client:
