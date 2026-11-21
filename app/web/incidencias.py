@@ -19,14 +19,14 @@ def _ejecutar(accion, mensaje_ok, mensaje_error):
         flash(f"❌ {mensaje_error}", "danger")
 
 
-@bp.route("/panel/incidencias")
+@bp.route("/panel/incidencias", methods=["GET"])
 @login_required
 def inicio():
     return render_template("privado/incidencias.html")
 
 
 # ---------- disciplinarias ----------
-@bp.route("/panel/incidencias/disciplinarias")
+@bp.route("/panel/incidencias/disciplinarias", methods=["GET"])
 @login_required
 def disciplinarias():
     datos = container.incidencia_service().panel_disciplinarias(
@@ -51,7 +51,7 @@ def actualizar_disciplinaria():
     return redirect(url_for("incidencias.disciplinarias"))
 
 
-@bp.route("/eliminar_incidencia_disciplinaria/<int:id_incidencia>")
+@bp.route("/eliminar_incidencia_disciplinaria/<int:id_incidencia>", methods=["GET"])
 @login_required
 def eliminar_disciplinaria(id_incidencia):
     _ejecutar(lambda: container.incidencia_service().eliminar_disciplinaria(id_supervisor(), id_incidencia),
@@ -60,7 +60,7 @@ def eliminar_disciplinaria(id_incidencia):
 
 
 # ---------- operativas ----------
-@bp.route("/panel/incidencias/operativas")
+@bp.route("/panel/incidencias/operativas", methods=["GET"])
 @login_required
 def operativas():
     datos = container.incidencia_service().panel_operativas(
@@ -85,7 +85,7 @@ def actualizar_operativa():
     return redirect(url_for("incidencias.operativas"))
 
 
-@bp.route("/eliminar_incidencia_operativa/<int:id_incidencia>")
+@bp.route("/eliminar_incidencia_operativa/<int:id_incidencia>", methods=["GET"])
 @login_required
 def eliminar_operativa(id_incidencia):
     _ejecutar(lambda: container.incidencia_service().eliminar_operativa(id_supervisor(), id_incidencia),
