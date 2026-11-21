@@ -1,3 +1,4 @@
+
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from app import container
@@ -5,6 +6,8 @@ from app.errors import ReglaNegocioError
 from app.web.seguridad import id_supervisor, login_required
 
 bp = Blueprint("caja", __name__)
+
+URL_PANEL_CAJA = "caja.panel"
 
 
 def _ejecutar(accion, mensaje_ok, mensaje_error):
@@ -18,37 +21,52 @@ def _ejecutar(accion, mensaje_ok, mensaje_error):
         flash(f"❌ {mensaje_error}", "danger")
 
 
-@bp.route("/panel/caja")
+@bp.route("/panel/caja", methods=["GET"])
 @login_required
 def panel():
-    return render_template("privado/caja.html", **container.caja_service().panel(id_supervisor()))
+    return render_template(
+        "privado/caja.html",
+        **container.caja_service().panel(id_supervisor())
+    )
 
 
-@bp.route("/editar_caja/<int:id_caja>")
+@bp.route("/editar_caja/<int:id_caja>", methods=["GET"])
 @login_required
 def editar(id_caja):
-    return render_template("privado/caja.html", **container.caja_service().panel(id_supervisor(), id_caja))
+    return render_template(
+        "privado/caja.html",
+        **container.caja_service().panel(id_supervisor(), id_caja)
+    )
 
 
 @bp.route("/registrar_caja", methods=["POST"])
 @login_required
 def registrar():
-    _ejecutar(lambda: container.caja_service().registrar(id_supervisor(), request.form),
-              "Recaudación registrada correctamente.", "No se pudo registrar la recaudación.")
-    return redirect(url_for("caja.panel"))
+    _ejecutar(
+        lambda: container.caja_service().registrar(id_supervisor(), request.form),
+        "Recaudación registrada correctamente.",
+        "No se pudo registrar la recaudación."
+    )
+    return redirect(url_for(URL_PANEL_CAJA))
 
 
 @bp.route("/actualizar_caja", methods=["POST"])
 @login_required
 def actualizar():
-    _ejecutar(lambda: container.caja_service().actualizar(id_supervisor(), request.form),
-              "Recaudación actualizada correctamente.", "No se pudo actualizar la recaudación.")
-    return redirect(url_for("caja.panel"))
+    _ejecutar(
+        lambda: container.caja_service().actualizar(id_supervisor(), request.form),
+        "Recaudación actualizada correctamente.",
+        "No se pudo actualizar la recaudación."
+    )
+    return redirect(url_for(URL_PANEL_CAJA))
 
 
-@bp.route("/eliminar_caja/<int:id_caja>")
+@bp.route("/eliminar_caja/<int:id_caja>", methods=["GET"])
 @login_required
 def eliminar(id_caja):
-    _ejecutar(lambda: container.caja_service().eliminar(id_supervisor(), id_caja),
-              "Recaudación eliminada.", "No se pudo eliminar la recaudación.")
-    return redirect(url_for("caja.panel"))
+    _ejecutar(
+        lambda: container.caja_service().eliminar(id_supervisor(), id_caja),
+        "Recaudación eliminada.",
+        "No se pudo eliminar la recaudación."
+    )
+    return redirect(url_for(URL_PANEL_CAJA))

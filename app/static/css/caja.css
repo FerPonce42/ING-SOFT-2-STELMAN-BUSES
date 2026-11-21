@@ -207,7 +207,7 @@ a.btn-primary {
         0 8px 20px rgba(43, 79, 165, 0.3),
         0 2px 4px rgba(0, 0, 0, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     cursor: pointer;
     overflow: hidden;
 }
@@ -348,7 +348,7 @@ table th::after {
 
 /* Filas */
 table tbody tr {
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     border-bottom: 1px solid #f0f0f0 !important;
     position: relative;
 }
@@ -425,7 +425,7 @@ table tr:hover td:last-child {
     font-weight: 700 !important;
     border-radius: 10px !important;
     text-decoration: none !important;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     border: none;
     cursor: pointer;
     margin-right: 0.75rem;
@@ -452,8 +452,8 @@ table tr:hover td:last-child {
 }
 
 .btn-info {
-    background: linear-gradient(135deg, var(--azul-info) 0%, #138496 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, #08758a 0%, #075968 100%) !important;
+    color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
 }
 
@@ -581,7 +581,7 @@ form textarea {
     border: 2px solid #e9ecef;
     border-radius: 12px;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     background: #f8f9fa;
     font-weight: 500;
 }
@@ -622,14 +622,14 @@ form .btn-sm {
 
 form button[type="submit"] {
     padding: 1.2rem 2.5rem;
-    background: linear-gradient(135deg, var(--verde-success) 0%, #20c997 100%);
-    color: white;
+    background: linear-gradient(135deg, #146c2e 0%, #087f5b 100%);
+    color: #ffffff;
     font-weight: 800;
     font-size: 1.1rem;
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 
         0 6px 20px rgba(40, 167, 69, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -708,5 +708,24 @@ form .btn-sm::before {
 
     div#modal-registro-caja {
         padding: 2rem !important;
+    }
+}
+
+/* Accesibilidad: respetar las preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .btn-primary,
+    a.btn-primary {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
     }
 }
