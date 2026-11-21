@@ -1,5 +1,9 @@
+import os
 import unittest
 from unittest.mock import MagicMock, patch
+
+os.environ.setdefault("SECRET_KEY", "clave-pruebas-personal")
+os.environ.setdefault("DB_PASSWORD", "clave-db-pruebas")
 
 from app import create_app
 from app.config import Config
