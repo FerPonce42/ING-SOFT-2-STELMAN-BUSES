@@ -1,4 +1,4 @@
-# Maricielo Karen Luna Carpio (CieloKaren): Pruebas de seguridad y de API
+# Pruebas de seguridad y de API
 
 ## Pruebas de seguridad con OWASP ZAP (#53)
 
