@@ -1,0 +1,330 @@
+{
+  "info": {
+    "name": "Stelman Buses API v1",
+    "description": "Pruebas de API: codigos HTTP, tiempos de respuesta y valores de negocio. Se ejecuta con Newman en Jenkins.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST /api/v1/login - credenciales validas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "const b = pm.response.json();",
+              "const token = b.token || b.access_token;",
+              "pm.test('Devuelve un token (texto no vacio)', function(){ pm.expect(token).to.be.a('string').and.not.empty; });",
+              "pm.environment.set('token', token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\": \"{{usuario}}\", \"password\": \"{{password}}\"}"
+        }
+      }
+    },
+    {
+      "name": "POST /api/v1/login - clave incorrecta",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Codigo HTTP 401 con credenciales incorrectas', function(){ pm.response.to.have.status(401); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "pm.test('No devuelve token', function(){ const b = pm.response.json(); pm.expect(b.token || b.access_token).to.be.undefined; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\": \"{{usuario}}\", \"password\": \"clave-incorrecta\"}"
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/buses - con token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
+              "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "const l = lista(pm.response.json());",
+              "pm.test('Devuelve una lista no vacia de buses', function(){ pm.expect(l).to.be.an('array').and.not.empty; });",
+              "pm.test('Valor de negocio: cada bus tiene placa (texto no vacio)', function(){ l.forEach(b => pm.expect(b.placa).to.be.a('string').and.not.empty); });",
+              "pm.test('Valor de negocio: las placas no se repiten', function(){ const p = l.map(b => b.placa); pm.expect(new Set(p).size).to.equal(p.length); });",
+              "pm.test('Valor de negocio: el año esta entre 1950 y el proximo año', function(){ l.forEach(b => { const a = b['año'] || b.anio || b.anio_fabricacion; if (a !== undefined) pm.expect(Number(a)).to.be.within(1950, new Date().getFullYear()+1); }); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/buses",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "buses"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/buses - sin token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Codigo HTTP 401 sin token', function(){ pm.response.to.have.status(401); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/buses",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "buses"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/choferes - con token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
+              "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "const l = lista(pm.response.json());",
+              "pm.test('Devuelve una lista de choferes', function(){ pm.expect(l).to.be.an('array').and.not.empty; });",
+              "pm.test('Valor de negocio: cada chofer tiene nombre (texto no vacio)', function(){ l.forEach(c => pm.expect(c.nombre).to.be.a('string').and.not.empty); });",
+              "pm.test('Valor de negocio: los choferes no se repiten por id', function(){ const ids = l.map(c => c.id_empleado !== undefined ? c.id_empleado : c.id); pm.expect(new Set(ids).size).to.equal(ids.length); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/choferes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "choferes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/choferes - sin token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Codigo HTTP 401 sin token', function(){ pm.response.to.have.status(401); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/choferes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "choferes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/caja - con token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
+              "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "const l = lista(pm.response.json());",
+              "pm.test('Devuelve una lista de recaudaciones', function(){ pm.expect(l).to.be.an('array'); });",
+              "pm.test('Valor de negocio: el monto recaudado es un numero mayor o igual a 0', function(){ l.forEach(c => { const m = Number(c.monto_recaudado !== undefined ? c.monto_recaudado : c.monto); pm.expect(m).to.be.a('number').and.not.NaN; pm.expect(m).to.be.at.least(0); }); });",
+              "pm.test('Valor de negocio: cada recaudacion tiene fecha', function(){ l.forEach(c => pm.expect(c.fecha).to.exist); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/caja",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "caja"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/caja - sin token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Codigo HTTP 401 sin token', function(){ pm.response.to.have.status(401); });",
+              "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/caja",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "caja"
+          ]
+        }
+      }
+    }
+  ]
+}
