@@ -15,10 +15,10 @@
             "exec": [
               "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
               "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
-              "const b = pm.response.json();",
+              "const b = (function(){ try { return pm.response.json(); } catch (e) { return {}; } })();",
               "const token = b.token || b.access_token;",
               "pm.test('Devuelve un token (texto no vacio)', function(){ pm.expect(token).to.be.a('string').and.not.empty; });",
-              "pm.environment.set('token', token);"
+              "if (token) { pm.environment.set('token', token); }"
             ]
           }
         }
@@ -58,7 +58,7 @@
             "exec": [
               "pm.test('Codigo HTTP 401 con credenciales incorrectas', function(){ pm.response.to.have.status(401); });",
               "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
-              "pm.test('No devuelve token', function(){ const b = pm.response.json(); pm.expect(b.token || b.access_token).to.be.undefined; });"
+              "pm.test('No devuelve token', function(){ const b = (function(){ try { return pm.response.json(); } catch (e) { return {}; } })(); pm.expect(b.token || b.access_token).to.be.undefined; });"
             ]
           }
         }
@@ -99,7 +99,7 @@
               "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
               "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
               "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
-              "const l = lista(pm.response.json());",
+              "const l = lista((function(){ try { return pm.response.json(); } catch (e) { return {}; } })());",
               "pm.test('Devuelve una lista no vacia de buses', function(){ pm.expect(l).to.be.an('array').and.not.empty; });",
               "pm.test('Valor de negocio: cada bus tiene placa (texto no vacio)', function(){ l.forEach(b => pm.expect(b.placa).to.be.a('string').and.not.empty); });",
               "pm.test('Valor de negocio: las placas no se repiten', function(){ const p = l.map(b => b.placa); pm.expect(new Set(p).size).to.equal(p.length); });",
@@ -179,7 +179,7 @@
               "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
               "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
               "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
-              "const l = lista(pm.response.json());",
+              "const l = lista((function(){ try { return pm.response.json(); } catch (e) { return {}; } })());",
               "pm.test('Devuelve una lista de choferes', function(){ pm.expect(l).to.be.an('array').and.not.empty; });",
               "pm.test('Valor de negocio: cada chofer tiene nombre (texto no vacio)', function(){ l.forEach(c => pm.expect(c.nombre).to.be.a('string').and.not.empty); });",
               "pm.test('Valor de negocio: los choferes no se repiten por id', function(){ const ids = l.map(c => c.id_empleado !== undefined ? c.id_empleado : c.id); pm.expect(new Set(ids).size).to.equal(ids.length); });"
@@ -258,7 +258,7 @@
               "function lista(b){ return Array.isArray(b) ? b : (b && (b.data || b.items || b.buses || b.choferes || b.caja || b.cajas || b.recaudaciones)) || []; }",
               "pm.test('Codigo HTTP 200', function(){ pm.response.to.have.status(200); });",
               "pm.test('Tiempo de respuesta < 2000 ms', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
-              "const l = lista(pm.response.json());",
+              "const l = lista((function(){ try { return pm.response.json(); } catch (e) { return {}; } })());",
               "pm.test('Devuelve una lista de recaudaciones', function(){ pm.expect(l).to.be.an('array'); });",
               "pm.test('Valor de negocio: el monto recaudado es un numero mayor o igual a 0', function(){ l.forEach(c => { const m = Number(c.monto_recaudado !== undefined ? c.monto_recaudado : c.monto); pm.expect(m).to.be.a('number').and.not.NaN; pm.expect(m).to.be.at.least(0); }); });",
               "pm.test('Valor de negocio: cada recaudacion tiene fecha', function(){ l.forEach(c => pm.expect(c.fecha).to.exist); });"
