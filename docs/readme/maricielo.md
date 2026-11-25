@@ -31,7 +31,7 @@ El escaneo es sin sesión iniciada, por lo que no recorre el panel privado.
 
 ## Pruebas de API con Postman y Newman (#54)
 
-Se armó una colección en Postman que prueba la API `/api/v1` y la ejecuto con Newman desde la terminal. Así no hay que abrir Postman a mano y puede correr sola en Jenkins.
+Se armó una colección en Postman que prueba la API `/api/v1` y se ejecuta con Newman desde la terminal. Así no hay que abrir Postman a mano y puede correr sola en Jenkins.
 
 **Qué revisa la colección** (8 requests y 28 pruebas):
 
@@ -59,4 +59,6 @@ Se armó una colección en Postman que prueba la API `/api/v1` y la ejecuto con 
 docker compose up -d --build
 bash pruebas_api/newman_run.sh
 ```
-El resultado queda en `reports/newman/newman.xml` y Jenkins lo muestra como reporte de pruebas.
+El resultado queda en `reports/newman/newman.xml` y la etapa de Jenkins lo publica como reporte de pruebas.
+
+Pendiente: correr la colección contra la API de Nicol (se asume login con token, cabecera Authorization: Bearer y campos placa, nombre y monto_recaudado) y probar las etapas dentro de Jenkins cuando esté el pipeline.
