@@ -2,7 +2,7 @@
 
 ## Pruebas de seguridad con OWASP ZAP (#53)
 
-**Qué hace:** escanea la aplicación web con OWASP ZAP (modo *baseline*) y guarda un reporte. Corre solo, sin intervención manual, como una etapa del pipeline de Jenkins en cada commit.
+**Qué hace:** escanea la aplicación web con OWASP ZAP (modo *baseline*) y guarda un reporte. Corre solo, sin una intervención manual, como una etapa del pipeline de Jenkins en cada commit.
 
 **Cómo funciona:**
 1. Se levanta la app con `docker compose up -d --build`.
@@ -10,7 +10,7 @@
 3. Los reportes se guardan en `reports/zap/` (`zap_baseline.html`, `.json` y `.md`) y Jenkins los archiva como artefactos.
 4. El script termina con éxito si ZAP no falla; las advertencias (código 2) no rompen el pipeline.
 
-**Etapa en el pipeline:** `Pruebas de seguridad (OWASP ZAP)` del Jenkinsfile.
+**Etapa en el pipeline:** `Pruebas de seguridad (OWASP ZAP)` (archivo `pruebas_seguridad/stage_zap.groovy`).
 
 **Cómo ejecutarlo a mano:**
 ```bash
@@ -31,4 +31,32 @@ El escaneo es sin sesión iniciada, por lo que no recorre el panel privado.
 
 ## Pruebas de API con Postman y Newman (#54)
 
-(Pendiente: se completa cuando esté lista la colección y la API de Nicol.)
+Se armó una colección en Postman que prueba la API `/api/v1` y la ejecuto con Newman desde la terminal. Así no hay que abrir Postman a mano y puede correr sola en Jenkins.
+
+**Qué revisa la colección** (8 requests y 28 pruebas):
+
+| Request | Código HTTP | Tiempo | Valor de negocio |
+|---|---|---|---|
+| `POST /api/v1/login` con datos correctos | 200 | menos de 2 s | devuelve un token |
+| `POST /api/v1/login` con clave incorrecta | 401 | menos de 2 s | no devuelve token |
+| `GET /api/v1/buses` | 200 con token, 401 sin token | menos de 2 s | la placa no está vacía ni repetida, y el año es válido |
+| `GET /api/v1/choferes` | 200 con token, 401 sin token | menos de 2 s | el nombre no está vacío y no hay ids repetidos |
+| `GET /api/v1/caja` | 200 con token, 401 sin token | menos de 2 s | el monto es mayor o igual a 0 y cada recaudación tiene fecha |
+
+**Cómo funciona:**
+1. Primero se hace el login y el token se guarda solo en una variable.
+2. Las demás requests usan ese token en la cabecera `Authorization: Bearer`.
+3. Cada una también se prueba sin token para comprobar que responde 401.
+
+**Archivos** (carpeta `pruebas_api/`):
+- `stelman_api.postman_collection.json`: la colección.
+- `stelman_local.postman_environment.json`: las variables (`baseUrl`, `usuario` y `password`).
+- `newman_run.sh`: corre Newman con Docker, dentro de la misma red que la app.
+- `stage_newman.groovy`: la etapa `Pruebas de API (Postman + Newman)` para el Jenkinsfile.
+
+**Cómo correrlo a mano:**
+```bash
+docker compose up -d --build
+bash pruebas_api/newman_run.sh
+```
+El resultado queda en `reports/newman/newman.xml` y Jenkins lo muestra como reporte de pruebas.
