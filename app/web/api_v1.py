@@ -92,6 +92,12 @@ def listar_choferes():
     choferes = [_serializar_fila(c) for c in datos["choferes"]]
     return jsonify(choferes), 200
 
+@bp.route("/buses", methods=["GET"])
+@token_requerido
+def listar_buses():
+    datos = container.bus_service().panel(request.usuario_api["id"])
+    buses = [_serializar_fila(b) for b in datos["buses"]]
+    return jsonify(buses), 200
 
 @bp.route("/openapi.json", methods=["GET"])
 def openapi_spec():
