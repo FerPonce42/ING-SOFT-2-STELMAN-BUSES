@@ -1,0 +1,4 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+01 - Login API,300,103,80,160,13.78,0.000%,30.09933,10.41,7.08,354.0
+02 - Listar Caja API,300,47,33,92,9.55,0.000%,30.23279,7523.39,9.45,254821.0
+TOTAL,600,75,33,160,30.38,0.000%,59.89817,7463.14,16.41,127587.5
