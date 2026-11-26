@@ -19,14 +19,14 @@ pipeline {
         stage('2. Construcción: Dependencias y Empaquetado') {
             steps {
                 echo 'Instalando dependencias y construyendo paquete/imagen...'
-                bat '''
-                    if not exist .venv (python -m venv .venv)
-                    call .venv\\Scripts\\activate.bat
-                    python -m pip install --upgrade pip
+                sh '''
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
-                    if exist requirements-dev.txt (pip install -r requirements-dev.txt)
+                    if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
                     pip install build
-                    if exist pyproject.toml (python -m build)
+                    if [ -f pyproject.toml ]; then python3 -m build; fi
                     docker compose build
                 '''
             }
@@ -35,11 +35,11 @@ pipeline {
         stage('3. Pruebas Unitarias y Cobertura') {
             steps {
                 echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
-                bat '''
-                    call .venv\\Scripts\\activate.bat
-                    if not exist reports mkdir reports
-                    python -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
-                    python -m coverage xml
+                sh '''
+                    . .venv/bin/activate
+                    mkdir -p reports
+                    python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
+                    python3 -m coverage xml
                 '''
             }
         }
@@ -48,7 +48,7 @@ pipeline {
             steps {
                 echo 'Ejecutando análisis estático con sonar-project.properties...'
                 withSonarQubeEnv('SonarQube') {
-                    bat '''
+                    sh '''
                         sonar-scanner
                     '''
                 }
@@ -59,7 +59,7 @@ pipeline {
         stage('5. Despliegue Automático con Docker') {
             steps {
                 echo 'Desplegando contenedores actualizados en el puerto 5000...'
-                bat '''
+                sh '''
                     docker compose down
                     docker compose up -d
                 '''
