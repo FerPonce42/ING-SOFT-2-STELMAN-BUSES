@@ -17,20 +17,31 @@ pipeline {
 
         // Issue #64: Construcción automática (compilación, dependencias y empaquetado)
         stage('2. Construcción: Dependencias y Empaquetado') {
-            steps {
-                echo 'Instalando dependencias y construyendo paquete/imagen...'
-                sh '''
-                    python3 -m venv .venv
-                    . .venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-                    pip install build
-                    if [ -f pyproject.toml ]; then python3 -m build; fi
-                    docker compose build
-                '''
-            }
+        steps {
+            echo 'Instalando dependencias y construyendo paquete/imagen...'
+            sh '''
+                if [ ! -f .env ]; then
+                    if [ -f .env.example ]; then
+                        cp .env.example .env
+                    else
+                        printf "DB_PASSWORD=stelman_pass\nDB_ROOT_PASSWORD=root_pass\nSECRET_KEY=stelman_secret_key\n" > .env
+                    fi
+                fi
+                grep -q "^DB_PASSWORD=" .env || echo "DB_PASSWORD=stelman_pass" >> .env
+                grep -q "^DB_ROOT_PASSWORD=" .env || echo "DB_ROOT_PASSWORD=root_pass" >> .env
+                grep -q "^SECRET_KEY=" .env || echo "SECRET_KEY=stelman_secret_key" >> .env
+
+                python3 -m venv .venv
+                . .venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+                pip install build
+                if [ -f pyproject.toml ]; then python3 -m build; fi
+                docker compose build
+            '''
         }
+    }
 
         stage('3. Pruebas Unitarias y Cobertura') {
             steps {
