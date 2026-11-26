@@ -33,8 +33,8 @@ services:
       FLASK_DEBUG: "1"
     ports:
       - "5000:5000"
-    volumes:
-      - ./app:/srv/app   # edita y recarga sin reconstruir la imagen
+
+ # edita y recarga sin reconstruir la imagen
 
 volumes:
   db_data:
