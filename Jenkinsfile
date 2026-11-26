@@ -86,6 +86,25 @@ pipeline {
                 '''
             }
         }
+
+        // Issue #53: Pruebas de seguridad con OWASP ZAP
+        stage('6. Pruebas de Seguridad (OWASP ZAP)') {
+            steps {
+                echo 'Escaneando la aplicación desplegada con OWASP ZAP (baseline)...'
+                sh '''
+                    for i in $(seq 1 30); do
+                      docker compose exec -T web python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/')" && break
+                      sleep 3
+                    done
+                    bash pruebas_seguridad/zap_baseline.sh
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'reports/zap/*', allowEmptyArchive: true
+                }
+            }
+        }
     }
 
     post {
