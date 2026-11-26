@@ -28,6 +28,8 @@ _ARGUMENTOS_CI = (
 
 def _chrome_headless(*args, options=None, **kwargs):
     options = options or webdriver.ChromeOptions()
+    if os.environ.get("CHROME_BIN"):
+        options.binary_location = os.environ["CHROME_BIN"]
     for argumento in _ARGUMENTOS_CI:
         options.add_argument(argumento)
     return _CHROME_ORIGINAL(*args, options=options, **kwargs)
