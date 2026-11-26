@@ -26,8 +26,8 @@ CLAVE = "stelman123"
 class TestRegistrarIncidencia(unittest.TestCase):
 
     def setUp(self):
-        options = webdriver.FirefoxOptions()
-        self.driver = webdriver.Firefox(options=options)
+        options = webdriver.ChromeOptions()
+        self.driver = webdriver.Chrome(options=options)
         self.driver.set_window_size(1440, 1000)
         self.wait = WebDriverWait(self.driver, 15)
         self.registros_creados = []
@@ -61,6 +61,14 @@ class TestRegistrarIncidencia(unittest.TestCase):
                 pass
         self.driver.quit()
 
+    def escribir_fecha(self, campo, valor_iso):
+        """Asigna la fecha (AAAA-MM-DD) igual en Chrome y Firefox.
+
+        send_keys sobre <input type="date"> depende del idioma del navegador,
+        por eso el valor se asigna directamente.
+        """
+        self.driver.execute_script("arguments[0].value = arguments[1];", campo, valor_iso)
+
     def abrir_formulario(self, tipo):
         ruta = (
             "/panel/incidencias/disciplinarias?nuevo_incidencia=true"
@@ -79,7 +87,7 @@ class TestRegistrarIncidencia(unittest.TestCase):
         select.select_by_value(opciones[0].get_attribute("value"))
 
     def llenar_datos_base(self, form, descripcion):
-        form.find_element(By.NAME, "fecha").send_keys(date.today().isoformat())
+        self.escribir_fecha(form.find_element(By.NAME, "fecha"), date.today().isoformat())
         form.find_element(By.NAME, "descripcion").send_keys(descripcion)
         self.seleccionar_primera_opcion(form, "id_bus")
         self.seleccionar_primera_opcion(form, "estado")
@@ -133,7 +141,7 @@ class TestRegistrarIncidencia(unittest.TestCase):
         )
 
         # Fecha del siguiente año.
-        campo.send_keys(f"{date.today().year + 1}-01-15")
+        self.escribir_fecha(campo, f"{date.today().year + 1}-01-15")
 
         form.find_element(By.NAME, "descripcion").send_keys("SELENIUM-DISC-CP03")
         self.seleccionar_primera_opcion(form, "id_bus")
