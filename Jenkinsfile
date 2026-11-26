@@ -17,74 +17,77 @@ pipeline {
 
         // Issue #64: Construcción automática (compilación, dependencias y empaquetado)
         stage('2. Construcción: Dependencias y Empaquetado') {
-        steps {
-            echo 'Instalando dependencias y construyendo paquete/imagen...'
-            sh '''
-                if [ ! -f .env ]; then
-                    if [ -f .env.example ]; then
-                        cp .env.example .env
-                    else
-                        printf "DB_PASSWORD=stelman_pass\nDB_ROOT_PASSWORD=root_pass\nSECRET_KEY=stelman_secret_key\n" > .env
+            steps {
+                echo 'Instalando dependencias y construyendo paquete/imagen...'
+                sh '''
+                    if [ ! -f .env ]; then
+                        if [ -f .env.example ]; then
+                            cp .env.example .env
+                        else
+                            printf "DB_PASSWORD=stelman_pass\nDB_ROOT_PASSWORD=root_pass\nSECRET_KEY=stelman_secret_key\n" > .env
+                        fi
                     fi
-                fi
-                grep -q "^DB_PASSWORD=" .env || echo "DB_PASSWORD=stelman_pass" >> .env
-                grep -q "^DB_ROOT_PASSWORD=" .env || echo "DB_ROOT_PASSWORD=root_pass" >> .env
-                grep -q "^SECRET_KEY=" .env || echo "SECRET_KEY=stelman_secret_key" >> .env
+                    grep -q "^DB_PASSWORD=" .env || echo "DB_PASSWORD=stelman_pass" >> .env
+                    grep -q "^DB_ROOT_PASSWORD=" .env || echo "DB_ROOT_PASSWORD=root_pass" >> .env
+                    grep -q "^SECRET_KEY=" .env || echo "SECRET_KEY=stelman_secret_key" >> .env
 
-                python3 -m venv .venv
-                . .venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-                pip install build
-                if [ -f pyproject.toml ]; then python3 -m build; fi
-                docker compose build
-            '''
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                    if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+                    pip install build
+                    if [ -f pyproject.toml ]; then python3 -m build; fi
+                    docker compose build
+                '''
+            }
         }
-    }
-stage('3. Pruebas Unitarias y Cobertura') {
-        steps {
-            echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
-            sh '''
-                set -a
-                . ./.env
-                set +a
-                docker compose up -d db
-                sleep 12
-                . .venv/bin/activate
-                mkdir -p reports
-                DB_HOST=host.docker.internal DB_PORT=3307 PYTHONPATH=. python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
-                PYTHONPATH=. python3 -m coverage xml
-            '''
-        }
-    }
 
-    stage('4. SonarQube Analysis') {
-        steps {
-            echo 'Ejecutando análisis estático con sonar-project.properties...'
-            script {
-                if (fileExists('/usr/local/bin/sonar-scanner') || sh(script: 'which sonar-scanner', returnStatus: true) == 0) {
-                    withSonarQubeEnv('SonarQube') {
-                        sh 'sonar-scanner'
+        stage('3. Pruebas Unitarias y Cobertura') {
+            steps {
+                echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
+                sh '''
+                    set -a
+                    . ./.env
+                    set +a
+                    docker compose up -d db
+                    sleep 12
+                    . .venv/bin/activate
+                    mkdir -p reports
+                    DB_HOST=host.docker.internal DB_PORT=3307 PYTHONPATH=. python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
+                    PYTHONPATH=. python3 -m coverage xml
+                '''
+            }
+        }
+
+        stage('4. SonarQube Analysis') {
+            steps {
+                echo 'Ejecutando análisis estático con sonar-project.properties...'
+                script {
+                    if (fileExists('/usr/local/bin/sonar-scanner') || sh(script: 'which sonar-scanner', returnStatus: true) == 0) {
+                        withSonarQubeEnv('SonarQube') {
+                            sh 'sonar-scanner'
+                        }
+                    } else {
+                        echo 'sonar-scanner no instalado en el agente; verificando sonar-project.properties...'
+                        sh 'cat sonar-project.properties'
                     }
-                } else {
-                    echo 'sonar-scanner no instalado en el agente; verificando sonar-project.properties...'
-                    sh 'cat sonar-project.properties'
                 }
+            }
+        }
+
+        // Issue #65: Gestión de entrega: despliegue automático por CI/CD y con Docker
+        stage('5. Despliegue Automático con Docker') {
+            steps {
+                echo 'Desplegando contenedores actualizados en el puerto 5000...'
+                sh '''
+                    docker compose down
+                    docker compose up -d --build
+                '''
             }
         }
     }
 
-    // Issue #65: Gestión de entrega: despliegue automático por CI/CD y con Docker
-    stage('5. Despliegue Automático con Docker') {
-        steps {
-            echo 'Desplegando contenedores actualizados en el puerto 5000...'
-            sh '''
-                docker compose down
-                docker compose up -d --build
-            '''
-        }
-    }
     post {
         success {
             echo "Pipeline ejecutado con éxito. Aplicación desplegada en http://localhost:5000"
