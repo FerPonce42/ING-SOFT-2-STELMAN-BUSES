@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def _requerida(nombre):
     valor = os.environ.get(nombre)
