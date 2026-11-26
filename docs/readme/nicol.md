@@ -42,12 +42,62 @@ python -m pytest tests/test_api_v1.py -v
 python -m pytest --ignore=tests/functional --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
+Resultado de ejecución: **440 pruebas aprobadas** (`12 skipped` correspondientes a integración con BD).
+
 ---
 
-## 3. Análisis Estático con SonarQube en CI/CD
+## 3. Análisis Estático con SonarQube e Integración en Jenkins
 
-Dentro del pipeline en Jenkins, la etapa de calidad de código ejecuta `pytest` con cobertura en formato XML (`coverage.xml`) y envía los resultados a **SonarQube** (`sonar-scanner`) para auditar:
+### Configuración del proyecto (`sonar-project.properties`)
 
-- **Bugs y vulnerabilidades:** Detección estática de fallos de lógica, manejo inseguro de credenciales o tokens y excepciones sin controlar.
-- **Code Smells y deuda técnica:** Cumplimiento de convenciones de estilo, complejidad ciclomática y duplicación de código en los módulos `app/` y `tests/`.
-- **Cobertura de pruebas (Code Coverage):** Verificación de líneas y ramas cubiertas por la suite unitaria antes de aprobar el *Quality Gate* y continuar hacia el despliegue.
+Se configuró el archivo `sonar-project.properties` en la raíz del repositorio para analizar el paquete `app` e integrar el reporte de cobertura de Python (`coverage.xml`):
+
+```properties
+sonar.projectKey=stelman-buses
+sonar.projectName=STELMAN-BUSES
+sonar.projectVersion=1.0
+sonar.sources=app
+sonar.tests=tests
+sonar.test.inclusions=tests/**
+sonar.python.version=3.12
+sonar.python.coverage.reportPaths=coverage.xml
+sonar.sourceEncoding=UTF-8
+```
+
+### Integración en el Pipeline CI/CD (`Jenkinsfile`)
+
+Etapa configurada para ejecutarse en Jenkins tras las pruebas unitarias, generando el reporte XML de cobertura y validando el *Quality Gate* en SonarQube:
+
+```groovy
+stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+                python -m coverage run -m pytest --ignore=tests/functional
+                python -m coverage xml
+                sonar-scanner
+            '''
+        }
+    }
+}
+
+stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+```
+
+### Resultados del Análisis Estático (SonarQube)
+
+| Métrica | Resultado | Calificación / Estado |
+| :--- | :--- | :--- |
+| **Quality Gate** | **Passed** (`OK`) | Aprobado |
+| **Security (Vulnerabilities)** | **0** abiertas | `A` |
+| **Reliability (Bugs)** | **0** abiertos | `A` |
+| **Maintainability (Code Smells)** | **0** abiertos | `A` |
+| **Security Hotspots** | **0** | `A` |
+| **Coverage (Cobertura de código)** | **88.0%** (943 / 1,071 líneas) | Supera umbral mínimo (80%) |
+| **Duplications (Duplicación)** | **0.8%** (en 8.4k líneas) | Óptimo (< 3%) |
