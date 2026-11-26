@@ -43,17 +43,22 @@ pipeline {
         }
     }
 
-        stage('3. Pruebas Unitarias y Cobertura') {
-            steps {
-                echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
-                sh '''
-                    . .venv/bin/activate
-                    mkdir -p reports
-                    python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
-                    python3 -m coverage xml
-                '''
-            }
+    stage('3. Pruebas Unitarias y Cobertura') {
+        steps {
+            echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
+            sh '''
+                set -a
+                . ./.env
+                set +a
+                docker compose up -d db
+                sleep 10
+                . .venv/bin/activate
+                mkdir -p reports
+                python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
+                python3 -m coverage xml
+            '''
         }
+    }
 
         stage('4. SonarQube Analysis') {
             steps {
