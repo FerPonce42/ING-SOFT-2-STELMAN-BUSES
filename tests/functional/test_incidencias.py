@@ -26,8 +26,8 @@ CLAVE = "stelman123"
 class TestRegistrarIncidencia(unittest.TestCase):
 
     def setUp(self):
-        options = webdriver.FirefoxOptions()
-        self.driver = webdriver.Firefox(options=options)
+        options = webdriver.ChromeOptions()
+        self.driver = webdriver.Chrome(options=options)
         self.driver.set_window_size(1440, 1000)
         self.wait = WebDriverWait(self.driver, 15)
         self.registros_creados = []

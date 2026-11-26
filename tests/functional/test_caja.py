@@ -21,7 +21,7 @@ def _verificar_bloqueo_del_formulario(driver, campo, valor):
     assert resultado is True
 
 
-class RegistrarRecaudacionTest:
+class TestRegistrarRecaudacion:
 
     def _mensaje(self, driver):
         return WebDriverWait(driver, 10).until(
