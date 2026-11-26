@@ -71,8 +71,6 @@ Como Jenkins corre dentro de un contenedor y no tiene navegador, la etapa constr
 
 El reporte `reports/funcionales.xml` se copia fuera del contenedor y se publica con `junit`, de modo que el resultado queda visible en el historial de cada ejecución. Si alguna prueba falla, la etapa falla y el pipeline se marca como fallido.
 
-!\[Etapa de pruebas funcionales en Jenkins](img/jenkins\_etapa6.png)
-
 \---
 
 ## 4\. Gestión de issues automática
@@ -86,9 +84,7 @@ Cuando cualquier etapa del pipeline falla, el bloque `post { failure }` del `Jen
 
 El token de GitHub no está en el repositorio. Se guarda en Jenkins como credencial de tipo *Secret text* con el identificador `github-token`, y el pipeline lo entrega al script mediante la variable `GITHUB\_TOKEN`. Si además se define `SLACK\_WEBHOOK\_URL`, el script envía el aviso también a Slack.
 
-Para el seguimiento, el issue creado se incorpora al GitHub Project mediante el workflow *Auto-add to project*, por lo que aparece en la columna inicial del tablero y sigue el mismo flujo que el resto de tareas (TO-DO, CURRENT ITERATION, IN PROGRESS, FIX VALIDATION y DONE).
-
-!\[Issue creado automáticamente por Jenkins](img/issue\_automatico.png)
+Para el seguimiento, el issue creado se puede agregar al GitHub Project para su seguimiento, por lo que aparece en la columna inicial del tablero y sigue el mismo flujo que el resto de tareas (TO-DO, CURRENT ITERATION, IN PROGRESS, FIX VALIDATION y DONE).
 
 \---
 
@@ -97,7 +93,7 @@ Para el seguimiento, el issue creado se incorpora al GitHub Project mediante el 
 |Entrega|Issue|Pull request|
 |-|-|-|
 |Pruebas funcionales con Selenium en modo headless|#62|#66|
-|Etapa de Selenium en Jenkins e issue automático ante fallos|#62, #63|**\[completar número del PR]**|
+|Etapa de Selenium en Jenkins e issue automático ante fallos|#62, #63|#71|
 
 
 
