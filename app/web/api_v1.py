@@ -93,6 +93,16 @@ def listar_choferes():
     return jsonify(choferes), 200
 
 
+@bp.route("/caja", methods=["GET"])
+@token_requerido
+def listar_caja():
+    datos = container.caja_service().panel(
+        request.usuario_api["id"]
+    )
+    cajas = [_serializar_fila(c) for c in datos["cajas"]]
+    return jsonify(cajas), 200
+
+
 @bp.route("/openapi.json", methods=["GET"])
 def openapi_spec():
     spec = {
