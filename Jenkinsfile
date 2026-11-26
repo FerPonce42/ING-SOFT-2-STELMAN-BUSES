@@ -7,10 +7,6 @@ pipeline {
         pollSCM('* * * * *')
     }
 
-    environment {
-        SONAR_PROJECT_KEY = "ING-SOFT-2-STELMAN-BUSES"
-    }
-
     stages {
         stage('1. Checkout') {
             steps {
@@ -19,7 +15,7 @@ pipeline {
             }
         }
 
-        // Issue 2: Construcción automática (compilación, dependencias y empaquetado)
+        // Issue #64: Construcción automática (compilación, dependencias y empaquetado)
         stage('2. Construcción: Dependencias y Empaquetado') {
             steps {
                 echo 'Instalando dependencias y construyendo paquete/imagen...'
@@ -36,29 +32,30 @@ pipeline {
             }
         }
 
-        stage('3. Pruebas Automatizadas y Cobertura') {
+        stage('3. Pruebas Unitarias y Cobertura') {
             steps {
-                echo 'Ejecutando pruebas automatizadas con pytest...'
+                echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
                 bat '''
                     call .venv\\Scripts\\activate.bat
                     if not exist reports mkdir reports
-                    pytest tests/unit tests/integration --cov=app --cov-report=xml:reports/coverage.xml --junitxml=reports/junit-report.xml
+                    python -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
+                    python -m coverage xml
                 '''
             }
         }
 
-        stage('4. Análisis Estático (SonarQube)') {
+        stage('4. SonarQube Analysis') {
             steps {
-                echo 'Analizando calidad de código en SonarQube...'
-                withSonarQubeEnv('SonarQubeServer') {
+                echo 'Ejecutando análisis estático con sonar-project.properties...'
+                withSonarQubeEnv('SonarQube') {
                     bat '''
-                        sonar-scanner -Dsonar.projectKey=%SONAR_PROJECT_KEY% -Dsonar.sources=app -Dsonar.python.coverage.reportPaths=reports/coverage.xml
+                        sonar-scanner
                     '''
                 }
             }
         }
 
-        // Issue 3: Gestión de entrega: despliegue automático por CI/CD y con Docker
+        // Issue #65: Gestión de entrega: despliegue automático por CI/CD y con Docker
         stage('5. Despliegue Automático con Docker') {
             steps {
                 echo 'Desplegando contenedores actualizados en el puerto 5000...'
