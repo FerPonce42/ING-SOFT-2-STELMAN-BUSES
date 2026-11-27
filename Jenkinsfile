@@ -87,8 +87,38 @@ pipeline {
             }
         }
 
+        // Issue #62: Pruebas funcionales automatizadas (Selenium) integradas a Jenkins
+        stage('6. Pruebas Funcionales (Selenium)') {
+            steps {
+                echo 'Ejecutando pruebas funcionales con Selenium (Chromium headless en contenedor)...'
+                sh '''
+                    set -e
+                    WEB=$(docker compose ps -q web)
+                    rm -rf .ctx-selenium
+                    mkdir -p .ctx-selenium reports
+                    cp -r tests requirements.txt requirements-dev.txt pytest.ini .ctx-selenium/
+                    cp Dockerfile.selenium .ctx-selenium/
+                    cp ci/probar_funcionales.sh .ctx-selenium/
+                    docker build -f .ctx-selenium/Dockerfile.selenium -t stelman-selenium .ctx-selenium
+                    docker rm -f stelman-selenium-run >/dev/null 2>&1 || true
+                    set +e
+                    docker run --name stelman-selenium-run --network container:$WEB stelman-selenium
+                    CODIGO=$?
+                    set -e
+                    docker cp stelman-selenium-run:/work/reports/funcionales.xml reports/funcionales.xml || true
+                    docker rm -f stelman-selenium-run >/dev/null 2>&1 || true
+                    exit $CODIGO
+                '''
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'reports/funcionales.xml'
+                }
+            }
+        }
+
         // Issue #53: Pruebas de seguridad con OWASP ZAP
-        stage('6. Pruebas de Seguridad (OWASP ZAP)') {
+        stage('7. Pruebas de Seguridad (OWASP ZAP)') {
             steps {
                 echo 'Escaneando la aplicación desplegada con OWASP ZAP (baseline)...'
                 sh '''
@@ -111,8 +141,12 @@ pipeline {
         success {
             echo "Pipeline ejecutado con éxito. Aplicación desplegada en http://localhost:5000"
         }
+        // Issue #63: gestión de cambios automatizada (issue en GitHub + aviso al equipo)
         failure {
             echo "Fallo detectado en el pipeline. Revisa el detalle en la consola de Jenkins."
+            withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                sh 'python3 ci/crear_issue_fallo.py || echo "No se pudo crear el issue automático"'
+            }
         }
         always {
             junit allowEmptyResults: true, testResults: 'reports/junit-report.xml'
