@@ -21,7 +21,7 @@ def _verificar_bloqueo_del_formulario(driver, campo, valor):
     assert resultado is True
 
 
-class RegistrarRecaudacionTest:
+class TestRegistrarRecaudacion:
 
     def _mensaje(self, driver):
         return WebDriverWait(driver, 10).until(
@@ -47,15 +47,16 @@ class RegistrarRecaudacionTest:
         assert resultado is True
 
     def test_cp09_fecha_anterior_al_minimo(self, driver):
-        campo = driver.find_element(By.NAME, "fecha")
-        minimo = campo.get_attribute("min")
+        """La fecha 1999-12-31 (debajo del mínimo 2000-01-01) la rechaza el servidor."""
+        campo_fecha = driver.find_element(By.NAME, "fecha")
+        # send_keys en <input type="date"> depende del idioma del navegador
+        driver.execute_script("arguments[0].value = arguments[1];", campo_fecha, "1999-12-31")
+        campo_monto = driver.find_element(By.NAME, "monto")
+        campo_monto.clear()
+        campo_monto.send_keys("100.00")
 
-        assert minimo is not None
-        campo.clear()
-        campo.send_keys("2020-01-01")
+        boton = driver.find_element(By.CSS_SELECTOR, f"{FORMULARIO} button[type='submit']")
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'}); arguments[0].click();", boton)
 
-        resultado = driver.execute_script(
-            "return arguments[0].validity.rangeUnderflow;",
-            campo
-        )
-        assert resultado is True
+        assert "fuera del rango permitido" in self._mensaje(driver)
