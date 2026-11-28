@@ -155,6 +155,76 @@ pipeline {
                 }
             }
         }
+
+
+        // Issue #60: Pruebas de rendimiento JMeter integradas con Jenkins
+        stage('9. Pruebas de Rendimiento (JMeter)') {
+            steps {
+                echo 'Ejecutando pruebas de rendimiento sobre GET /api/v1/caja...'
+                withCredentials([usernamePassword(
+                    credentialsId: 'jmeter-api-credentials',
+                    usernameVariable: 'JMETER_USER',
+                    passwordVariable: 'JMETER_PASSWORD'
+                )]) {
+                    sh '''
+                        set -eu
+
+                        mkdir -p reports/jmeter
+
+                        WEB=$(docker compose ps -q web)
+                        if [ -z "$WEB" ]; then
+                            echo "No se encontró el contenedor web"
+                            exit 1
+                        fi
+
+                        NETWORK=$(docker inspect "$WEB" --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' | head -n 1)
+
+                        docker rm -f jmeter-api-caja >/dev/null 2>&1 || true
+
+                        docker create \
+                        --name jmeter-api-caja \
+                        --network "$NETWORK" \
+                        --entrypoint sh \
+                        alpine/jmeter:5.6.3 \
+                        -c "mkdir -p /tests && sleep 600"
+
+                        docker start jmeter-api-caja
+                        docker cp pruebas_rendimiento/plan_api_caja.jmx jmeter-api-caja:/tests/plan_api_caja.jmx
+
+                        docker exec jmeter-api-caja \
+                            /opt/apache-jmeter-5.6.3/bin/jmeter \
+                            -n \
+                            -t /tests/plan_api_caja.jmx \
+                            -Jhost=web \
+                            -Jport=5000 \
+                            -Jusuario="$JMETER_USER" \
+                            -Jclave="$JMETER_PASSWORD" \
+                            -Jthreads=100 \
+                            -Jrampup=10 \
+                            -l /tests/resultados.jtl
+
+                        docker cp jmeter-api-caja:/tests/resultados.jtl reports/jmeter/resultados.jtl
+
+                        docker exec jmeter-api-caja \
+                            /opt/apache-jmeter-5.6.3/bin/jmeter \
+                            -g /tests/resultados.jtl \
+                            -o /tests/reporte_html
+
+                        docker cp jmeter-api-caja:/tests/reporte_html reports/jmeter/reporte_html
+
+                        docker rm -f jmeter-api-caja >/dev/null
+
+                        echo "Pruebas JMeter finalizadas correctamente"
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'reports/jmeter/**', allowEmptyArchive: true
+                }
+            }
+        }
+
     }
 
     post {
