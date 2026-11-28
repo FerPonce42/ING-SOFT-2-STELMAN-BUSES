@@ -1,0 +1,17 @@
+
+services:
+  db:
+    environment:
+      MARIADB_DATABASE: bd_stelman_buses_ci
+    ports: !reset []
+    volumes: !override
+      - db_data_ci:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+
+  web:
+    environment:
+      DB_NAME: bd_stelman_buses_ci
+    ports: !reset []
+
+volumes:
+  db_data_ci:

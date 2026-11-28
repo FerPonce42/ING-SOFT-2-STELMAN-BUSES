@@ -15,15 +15,17 @@ def create_app(config_object=Config):
     db.init_app(app)
     csrf.init_app(app)
 
-    from app.web import auth, buses, caja, incidencias, panel, personal, publico, reportes
+    from app.web import api_v1, auth, buses, caja, incidencias, panel, personal, publico, reportes
 
-    for modulo in (publico, auth, panel, buses, personal, incidencias, caja, reportes):
+    for modulo in (publico, auth, panel, buses, personal, incidencias, caja, reportes, api_v1):
         app.register_blueprint(modulo.bp)
+
+    csrf.exempt(api_v1.bp)
 
     @app.context_processor
     def variables_globales():
         datos = {"current_year": datetime.now().year, "rutas_publicas": []}
-        if request.blueprint == "publico":  # el menú público lista las rutas de la BD
+        if request.blueprint == "publico":
             from app import container
             try:
                 datos["rutas_publicas"] = container.ruta_service().listar_publicas()
