@@ -61,4 +61,6 @@ bash pruebas_api/newman_run.sh
 ```
 El resultado queda en `reports/newman/newman.xml` y la etapa de Jenkins lo publica como reporte de pruebas.
 
-Pendiente: correr la colección contra la API de Nicol (se asume login con token, cabecera Authorization: Bearer y campos placa, nombre y monto_recaudado) y probar las etapas dentro de Jenkins cuando esté el pipeline.
+**Resultado:** la colección se ejecutó contra la API real (login, buses, choferes y caja) y pasaron las 28 pruebas.
+
+**Pendiente:** ver correr las etapas 7 (ZAP) y 8 (Newman) dentro de Jenkins.
