@@ -60,6 +60,7 @@ pipeline {
                     . .venv/bin/activate
                     mkdir -p reports
 
+                    PYTHON_DOTENV_DISABLED=1 \
                     DB_HOST=db \
                     DB_PORT=3306 \
                     DB_NAME=bd_stelman_buses_ci \

@@ -5,6 +5,7 @@ services:
     ports: !reset []
     volumes: !override
       - db_data_ci:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
 
   web:
     environment:
