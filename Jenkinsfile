@@ -44,42 +44,34 @@ pipeline {
         }
 
         
-        
         stage('3. Pruebas Unitarias y Cobertura') {
             steps {
                 echo 'Ejecutando pruebas unitarias sobre la base de datos CI...'
                 sh '''
                     set -eu
 
-                    set -a
-                    . ./.env
-                    set +a
-
-                    docker compose \
+                    docker compose -p stelman-buses-ci \
                         -f docker-compose.yml \
                         -f docker-compose.ci.yml \
-                        -p stelman-buses-ci
                         up -d db
-                        docker network connect stelman-buses-ci_default jenkins-stelman 2>/dev/null || true
+
+                    docker network connect stelman-buses-ci_default jenkins-stelman 2>/dev/null || true
 
                     . .venv/bin/activate
-
                     mkdir -p reports
 
-                        DB_HOST=db \
-                        DB_PORT=3306 \
-                        DB_NAME=bd_stelman_buses_ci \
-                        PYTHONPATH=. \
-                        python3 -m coverage run -m pytest \
+                    DB_HOST=db \
+                    DB_PORT=3306 \
+                    DB_NAME=bd_stelman_buses_ci \
+                    PYTHONPATH=. \
+                    python3 -m coverage run -m pytest \
                         --ignore=tests/functional \
                         --junitxml=reports/junit-report.xml
 
-                        PYTHONPATH=. python3 -m coverage xml
-                    '''
+                    PYTHONPATH=. python3 -m coverage xml
+                '''
             }
         }
-
-
 
         stage('4. SonarQube Analysis') {
             steps {
@@ -99,16 +91,10 @@ pipeline {
 
         // Issue #65: Gestión de entrega: despliegue automático por CI/CD y con Docker
         
-
         stage('5. Despliegue Automático con Docker') {
             steps {
-                echo 'Desplegando contenedores aislados para CI...'
+                echo 'Desplegando contenedores CI...'
                 sh '''
-                    docker compose -p stelman-buses-ci \
-                        -f docker-compose.yml \
-                        -f docker-compose.ci.yml \
-                        down
-
                     docker compose -p stelman-buses-ci \
                         -f docker-compose.yml \
                         -f docker-compose.ci.yml \
@@ -116,7 +102,6 @@ pipeline {
                 '''
             }
         }
-
 
         // Issue #62: Pruebas funcionales automatizadas (Selenium) integradas a Jenkins
         stage('6. Pruebas Funcionales (Selenium)') {
