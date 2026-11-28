@@ -135,6 +135,26 @@ pipeline {
                 }
             }
         }
+
+        // Issue #54: Pruebas de API con Postman + Newman
+        stage('8. Pruebas de API (Postman + Newman)') {
+            steps {
+                echo 'Ejecutando la colección de Postman con Newman contra la API desplegada...'
+                sh '''
+                    for i in $(seq 1 30); do
+                      docker compose exec -T web python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/')" && break
+                      sleep 3
+                    done
+                    bash pruebas_api/newman_run.sh
+                '''
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'reports/newman/newman.xml'
+                    archiveArtifacts artifacts: 'reports/newman/*', allowEmptyArchive: true
+                }
+            }
+        }
     }
 
     post {
