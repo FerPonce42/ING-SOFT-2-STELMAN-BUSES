@@ -43,22 +43,43 @@ pipeline {
             }
         }
 
+        
+        
         stage('3. Pruebas Unitarias y Cobertura') {
             steps {
-                echo 'Ejecutando pruebas automatizadas (excluyendo funcionales) y generando coverage.xml...'
+                echo 'Ejecutando pruebas unitarias sobre la base de datos CI...'
                 sh '''
+                    set -eu
+
                     set -a
                     . ./.env
                     set +a
-                    docker compose up -d db
-                    sleep 12
+
+                    docker compose \
+                        -f docker-compose.yml \
+                        -f docker-compose.ci.yml \
+                        -p stelman-buses-ci
+                        up -d db
+                        docker network connect stelman-buses-ci_default jenkins-stelman 2>/dev/null || true
+
                     . .venv/bin/activate
+
                     mkdir -p reports
-                    DB_HOST=host.docker.internal DB_PORT=3307 PYTHONPATH=. python3 -m coverage run -m pytest --ignore=tests/functional --junitxml=reports/junit-report.xml
-                    PYTHONPATH=. python3 -m coverage xml
-                '''
+
+                        DB_HOST=db \
+                        DB_PORT=3306 \
+                        DB_NAME=bd_stelman_buses_ci \
+                        PYTHONPATH=. \
+                        python3 -m coverage run -m pytest \
+                        --ignore=tests/functional \
+                        --junitxml=reports/junit-report.xml
+
+                        PYTHONPATH=. python3 -m coverage xml
+                    '''
             }
         }
+
+
 
         stage('4. SonarQube Analysis') {
             steps {
@@ -77,15 +98,25 @@ pipeline {
         }
 
         // Issue #65: Gestión de entrega: despliegue automático por CI/CD y con Docker
+        
+
         stage('5. Despliegue Automático con Docker') {
             steps {
-                echo 'Desplegando contenedores actualizados en el puerto 5000...'
+                echo 'Desplegando contenedores aislados para CI...'
                 sh '''
-                    docker compose down
-                    docker compose up -d --build
+                    docker compose -p stelman-buses-ci \
+                        -f docker-compose.yml \
+                        -f docker-compose.ci.yml \
+                        down
+
+                    docker compose -p stelman-buses-ci \
+                        -f docker-compose.yml \
+                        -f docker-compose.ci.yml \
+                        up -d --build
                 '''
             }
         }
+
 
         // Issue #62: Pruebas funcionales automatizadas (Selenium) integradas a Jenkins
         stage('6. Pruebas Funcionales (Selenium)') {
@@ -171,11 +202,7 @@ pipeline {
 
                         mkdir -p reports/jmeter
 
-                        WEB=$(docker compose ps -q web)
-                        if [ -z "$WEB" ]; then
-                            echo "No se encontró el contenedor web"
-                            exit 1
-                        fi
+                        docker compose -p stelman-buses-ci ps -q web
 
                         NETWORK=$(docker inspect "$WEB" --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' | head -n 1)
 
@@ -234,9 +261,6 @@ pipeline {
         // Issue #63: gestión de cambios automatizada (issue en GitHub + aviso al equipo)
         failure {
             echo "Fallo detectado en el pipeline. Revisa el detalle en la consola de Jenkins."
-            withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                sh 'python3 ci/crear_issue_fallo.py || echo "No se pudo crear el issue automático"'
-            }
         }
         always {
             junit allowEmptyResults: true, testResults: 'reports/junit-report.xml'
