@@ -69,6 +69,8 @@ pipeline {
                     DB_NAME=bd_stelman_buses_ci \
                     PYTHONPATH=. \
                     python3 -m coverage run -m pytest \
+                        --ignore=tests/functional \
+                        --junitxml=reports/junit-report.xml
 
                     PYTHONPATH=. python3 -m coverage xml
                 '''
