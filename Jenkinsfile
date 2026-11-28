@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        COMPOSE_PROJECT_NAME = 'stelman-buses-ci'
+    }
+
     // Issue #61: Pipeline CI/CD en Jenkins disparado por commit
     triggers {
         githubPush()
@@ -193,7 +197,7 @@ pipeline {
 
                         mkdir -p reports/jmeter
 
-                        docker compose -p stelman-buses-ci ps -q web
+                        WEB=$(docker compose -p stelman-buses-ci ps -q web)
 
                         NETWORK=$(docker inspect "$WEB" --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' | head -n 1)
 
@@ -252,6 +256,15 @@ pipeline {
         // Issue #63: gestión de cambios automatizada (issue en GitHub + aviso al equipo)
         failure {
             echo "Fallo detectado en el pipeline. Revisa el detalle en la consola de Jenkins."
+            script {
+                try {
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh 'python3 ci/crear_issue_fallo.py'
+                    }
+                } catch (err) {
+                    echo "No se pudo crear el issue automático: ${err}"
+                }
+            }
         }
         always {
             junit allowEmptyResults: true, testResults: 'reports/junit-report.xml'
