@@ -60,7 +60,9 @@ pipeline {
                     . .venv/bin/activate
                     mkdir -p reports
 
-                    PYTHON_DOTENV_DISABLED=1 \
+                    mv .env .env.ci-backup
+                    trap 'mv .env.ci-backup .env' EXIT
+
                     SECRET_KEY=ci-secret-key-para-pruebas \
                     DB_PASSWORD=ci_password \
                     DB_ROOT_PASSWORD=ci_root_password \
