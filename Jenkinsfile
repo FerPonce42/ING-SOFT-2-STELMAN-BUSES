@@ -61,13 +61,14 @@ pipeline {
                     mkdir -p reports
 
                     PYTHON_DOTENV_DISABLED=1 \
+                    SECRET_KEY=ci-secret-key-para-pruebas \
+                    DB_PASSWORD=ci_password \
+                    DB_ROOT_PASSWORD=ci_root_password \
                     DB_HOST=db \
                     DB_PORT=3306 \
                     DB_NAME=bd_stelman_buses_ci \
                     PYTHONPATH=. \
                     python3 -m coverage run -m pytest \
-                        --ignore=tests/functional \
-                        --junitxml=reports/junit-report.xml
 
                     PYTHONPATH=. python3 -m coverage xml
                 '''
