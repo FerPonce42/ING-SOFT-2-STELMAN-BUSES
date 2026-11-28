@@ -138,3 +138,51 @@ def test_swagger_docs_retorna_html_200(client):
     html = res.get_data(as_text=True)
     assert "SwaggerUIBundle" in html
     assert "/api/v1/openapi.json" in html
+
+
+def test_listar_caja_sin_token_retorna_401(client):
+    response = client.get("/api/v1/caja")
+
+    assert response.status_code == 401
+
+
+def test_listar_caja_con_token_valido_retorna_200(client, app, monkeypatch):
+    caja_mock = MagicMock()
+    caja_mock.panel.return_value = {
+        "cajas": [
+            {
+                "id_caja": 21,
+                "fecha": date(2026, 11, 26),
+                "monto_recaudado": 125.50
+            }
+        ]
+    }
+
+    monkeypatch.setattr(
+        container,
+        "caja_service",
+        lambda: caja_mock
+    )
+
+    with app.app_context():
+        token = generar_token({
+            "id": 3,
+            "usuario": "supervisor",
+            "rol": "supervisor"
+        })
+
+    response = client.get(
+        "/api/v1/caja",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    assert response.json == [
+        {
+            "id_caja": 21,
+            "fecha": "2026-11-26",
+            "monto_recaudado": 125.50
+        }
+    ]
+
+    caja_mock.panel.assert_called_once_with(3)
